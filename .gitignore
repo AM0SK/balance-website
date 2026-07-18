@@ -27,3 +27,9 @@ Thumbs.db
 
 # Конфіг бекенду з паролем БД і токеном бота — тільки на сервері
 api/config.php
+
+# Робочі матеріали дизайну живуть у Balance/ поруч, поза репозиторієм.
+# Джерело правди для кольорів у коді — src/styles/tokens.css
+App-screens/
+UI-references/
+design-system/
