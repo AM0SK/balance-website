@@ -1,0 +1,18 @@
+# Усі запити до /api/* веде index.php; шлях приїжджає в ?route=
+RewriteEngine On
+RewriteBase /api/
+
+# Реальні файли не переписуємо (на випадок статики поруч).
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php?route=$1 [QSA,L]
+
+# Конфіг із паролями і SQL-дампи не мають віддаватися по HTTP.
+<FilesMatch "\.(sql|md)$|^config\.php$">
+  Require all denied
+</FilesMatch>
+
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "no-referrer"
+</IfModule>

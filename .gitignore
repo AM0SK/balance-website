@@ -24,3 +24,6 @@ Thumbs.db
 
 # Локальні налаштування Claude Code
 .claude/settings.local.json
+
+# Конфіг бекенду з паролем БД і токеном бота — тільки на сервері
+api/config.php
