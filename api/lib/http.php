@@ -23,9 +23,37 @@ function connectDatabase(array $db): PDO
 
 function sendJson(mixed $data, int $status = 200): never
 {
+    $json = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+    /*
+     * json_encode повертає false, наприклад, на битому UTF-8 з бази.
+     * Раніше це давало 200 з порожнім тілом — найгірший результат:
+     * клієнт вважає запит успішним і падає на null.
+     * Тепер це чесна 500 із назвою розділу, що не закодувався.
+     */
+    if ($json === false) {
+        $reason = json_last_error_msg();
+        $broken = [];
+        if (is_array($data)) {
+            foreach ($data as $key => $value) {
+                if (json_encode($value, JSON_UNESCAPED_UNICODE) === false) {
+                    $broken[] = $key;
+                }
+            }
+        }
+
+        http_response_code(500);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode([
+            'error'  => 'Не вдалося закодувати відповідь: ' . $reason,
+            'broken' => $broken,
+        ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+        exit;
+    }
+
     http_response_code($status);
     header('Content-Type: application/json; charset=utf-8');
-    echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    echo $json;
     exit;
 }
 
