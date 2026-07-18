@@ -1,0 +1,26 @@
+# Залежності
+node_modules/
+
+# Збірка
+dist/
+build/
+.vite/
+
+# Оточення
+.env
+.env.local
+.env.*.local
+
+# Логи
+*.log
+npm-debug.log*
+yarn-error.log*
+
+# ОС / редактори
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Локальні налаштування Claude Code
+.claude/settings.local.json
