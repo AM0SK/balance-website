@@ -86,11 +86,15 @@ Type: Nunito (вшито як data URI). Усі ролі тексту керую
     --tab-active: #020202;
     --protein: #C15C48;
     --accent-line: #C15C48;
-    --carb: #CC9A3A;
-    --fat: #5E72A6;
-    --chip-v: #6A6488;
+    --carb: #5077B5;
+    --fat: #C29C2E;
+    --chip-v: #75954B;
     --chip-d: #8B5FBF;
     --chip-e: #C15C8A;
+    --chip-ye: #7B7789;
+    --chip-zh: #D4761F;
+    --chip-ink: #FFFFFF;        /* літера на чипі */
+    --chip-ink-pale: #12101A;   /* для світлих чипів В · Г · Ж */
     --flag: #C15C48;
     --ring-track: #EBEAF0;
     --ring-a: #020202;
@@ -133,11 +137,15 @@ Type: Nunito (вшито як data URI). Усі ролі тексту керую
       --tab-active: #FFFFFF;
       --protein: #E58873;
       --accent-line: #E58873;
-      --carb: #E0B95C;
-      --fat: #8CA0DE;
-      --chip-v: #9C96C2;
+      --carb: #8DB0E6;
+      --fat: #DCBE62;
+      --chip-v: #AAC77F;
       --chip-d: #B79CE0;
       --chip-e: #E098B6;
+      --chip-ye: #A6A1B5;
+      --chip-zh: #F0A75E;
+      --chip-ink: #12101A;        /* у темній темі чипи — світлі пастелі */
+      --chip-ink-pale: #12101A;
       --flag: #E58873;
       --ring-track: rgba(255,255,255,.14);
       --ring-a: #8F88B4;
@@ -177,11 +185,15 @@ Type: Nunito (вшито як data URI). Усі ролі тексту керую
     --tab-active: #FFFFFF;
     --protein: #E58873;
     --accent-line: #E58873;
-    --carb: #E0B95C;
-    --fat: #8CA0DE;
-    --chip-v: #9C96C2;
+    --carb: #8DB0E6;
+    --fat: #DCBE62;
+    --chip-v: #AAC77F;
     --chip-d: #B79CE0;
     --chip-e: #E098B6;
+    --chip-ye: #A6A1B5;
+    --chip-zh: #F0A75E;
+    --chip-ink: #12101A;        /* у темній темі чипи — світлі пастелі */
+    --chip-ink-pale: #12101A;
     --flag: #E58873;
     --ring-track: rgba(255,255,255,.14);
     --ring-a: #8F88B4;
@@ -220,11 +232,15 @@ Type: Nunito (вшито як data URI). Усі ролі тексту керую
     --tab-active: #020202;
     --protein: #C15C48;
     --accent-line: #C15C48;
-    --carb: #CC9A3A;
-    --fat: #5E72A6;
-    --chip-v: #6A6488;
+    --carb: #5077B5;
+    --fat: #C29C2E;
+    --chip-v: #75954B;
     --chip-d: #8B5FBF;
     --chip-e: #C15C8A;
+    --chip-ye: #7B7789;
+    --chip-zh: #D4761F;
+    --chip-ink: #FFFFFF;        /* літера на чипі */
+    --chip-ink-pale: #12101A;   /* для світлих чипів В · Г · Ж */
     --flag: #C15C48;
     --ring-track: #EBEAF0;
     --ring-a: #020202;
@@ -374,7 +390,7 @@ Type: Nunito (вшито як data URI). Усі ролі тексту керую
   .macrorow .v{ font-size: var(--t-value-size); font-weight: var(--t-value-weight); }
   .progress-line{ height:6px; border-radius:4px; background: var(--ring-track); overflow:hidden; margin-bottom:16px; }
   .progress-line:last-child{ margin-bottom:0; }
-  .progress-line i{ display:block; height:100%; background: var(--grad-line); border-radius:4px; }
+  .progress-line i{ display:block; height:100%; background: var(--accent-line); border-radius:4px; }
 
   /* weight / measure */
   .trend{ display:flex; align-items:center; gap:5px; font-size: var(--t-body2-size); font-weight:700; color: var(--plum); }
@@ -397,8 +413,10 @@ Type: Nunito (вшито як data URI). Усі ролі тексту керую
   .cathead{ display:flex; align-items:center; gap:10px; padding: 14px 15px 12px; }
   .chip{
     width:26px;height:26px;border-radius:9px; display:flex;align-items:center;justify-content:center;
-    color:#fff; font-size:12.5px; font-weight:800; flex-shrink:0;
+    color: var(--chip-ink); font-size:12.5px; font-weight:800; flex-shrink:0;
   }
+  /* В · Г · Ж — світлі відтінки, біла літера на них не читається */
+  .chip.pale{ color: var(--chip-ink-pale); }
   .cathead .cname{ font-size: var(--t-h3-size); font-weight: var(--t-h3-weight); letter-spacing:-0.01em; flex:1; min-width:0; }
   .cathead .csum{ font-size: var(--t-body2-size); font-weight: var(--t-body2-weight); color: var(--ink-faint); white-space:nowrap; }
 
@@ -574,8 +592,14 @@ Type: Nunito (вшито як data URI). Усі ролі тексту керую
       <div class="swatchgroup"><div class="swatch" style="background:linear-gradient(135deg,#343147,#020202)"></div><span class="swatch-label">градієнт</span></div>
       <div class="swatchgroup"><div class="swatch" style="background:linear-gradient(90deg,rgba(62,158,110,.9),rgba(62,158,110,.25))"></div><span class="swatch-label">стан: почато</span></div>
       <div class="swatchgroup"><div class="swatch" style="background:linear-gradient(90deg,rgba(204,154,58,.95),rgba(204,154,58,.3))"></div><span class="swatch-label">стан: ліміт</span></div>
-      <div class="swatchgroup"><div class="swatch" style="background:#C15C48"></div><span class="swatch-label">білки</span></div>
-      <div class="swatchgroup"><div class="swatch" style="background:#5E72A6"></div><span class="swatch-label">жири</span></div>
+      <div class="swatchgroup"><div class="swatch" style="background:var(--carb)"></div><span class="swatch-label">А · крупи</span></div>
+      <div class="swatchgroup"><div class="swatch" style="background:var(--protein)"></div><span class="swatch-label">Б · білкові</span></div>
+      <div class="swatchgroup"><div class="swatch" style="background:var(--chip-v)"></div><span class="swatch-label">В · овочі</span></div>
+      <div class="swatchgroup"><div class="swatch" style="background:var(--fat)"></div><span class="swatch-label">Г · жири</span></div>
+      <div class="swatchgroup"><div class="swatch" style="background:var(--chip-d)"></div><span class="swatch-label">Д · молочні</span></div>
+      <div class="swatchgroup"><div class="swatch" style="background:var(--chip-e)"></div><span class="swatch-label">Е · фрукти</span></div>
+      <div class="swatchgroup"><div class="swatch" style="background:var(--chip-ye)"></div><span class="swatch-label">Є · горіхи</span></div>
+      <div class="swatchgroup"><div class="swatch" style="background:var(--chip-zh)"></div><span class="swatch-label">Ж · солодощі</span></div>
     </div>
   </div>
 
@@ -681,10 +705,12 @@ Type: Nunito (вшито як data URI). Усі ролі тексту керую
 
           <div class="stack">
             <div class="pagehead"><div class="pagetitle">Раціон</div></div>
+            <div class="statbig">
+              <span class="lbl">Білки</span>
+              <span class="val num">96 <u>грам</u></span>
+            </div>
             <div class="macroblock">
-              <div class="macrorow"><span class="k">Білки</span><span class="v num">96 / 210 г</span></div>
-              <div class="progress-line"><i style="width:46%; background:var(--protein);"></i></div>
-              <div class="macrorow"><span class="k">Калорії</span><span class="v num">1 240 / 1 766</span></div>
+              <div class="macrorow"><span class="k">Калорії</span><span class="v num">1 240 / 1 766 ккал</span></div>
               <div class="progress-line"><i style="width:70%;"></i></div>
             </div>
 
@@ -739,7 +765,7 @@ Type: Nunito (вшито як data URI). Усі ролі тексту керую
 
             <div class="catcard">
               <div class="cathead">
-                <div class="chip" style="background:var(--chip-v);">В</div>
+                <div class="chip pale" style="background:var(--chip-v);">В</div>
                 <div class="cname">Овочі та гриби</div>
                 <div class="csum num">1 / 2</div>
               </div>
@@ -755,7 +781,7 @@ Type: Nunito (вшито як data URI). Усі ролі тексту керую
 
             <div class="catcard">
               <div class="cathead">
-                <div class="chip" style="background:var(--fat);">Г</div>
+                <div class="chip pale" style="background:var(--fat);">Г</div>
                 <div class="cname">Жири та соуси</div>
                 <div class="csum num">0 / 4</div>
               </div>
@@ -766,6 +792,70 @@ Type: Nunito (вшито як data URI). Усі ролі тексту керую
               <div class="prow">
                 <div class="pmeta"><div class="pname">Будь-яка олія</div><div class="psub num">135 ккал · 0 г білка</div></div>
                 <div class="pval num">0 / 15 г</div>
+              </div>
+            </div>
+
+            <div class="catcard">
+              <div class="cathead">
+                <div class="chip" style="background:var(--chip-d);">Д</div>
+                <div class="cname">Молочні</div>
+                <div class="csum num">0 / 7</div>
+              </div>
+              <div class="prow">
+                <div class="pmeta"><div class="pname">Кефір 1%</div><div class="psub num">151 ккал · 10.5 г білка</div></div>
+                <div class="pval num">0 / 340 г</div>
+              </div>
+              <div class="prow">
+                <div class="pmeta"><div class="pname">Сир кисломолочний нежирний</div><div class="psub num">168 ккал · 37.8 г білка</div></div>
+                <div class="pval num">0 / 210 г</div>
+              </div>
+            </div>
+
+            <div class="catcard">
+              <div class="cathead">
+                <div class="chip" style="background:var(--chip-e);">Е</div>
+                <div class="cname">Фрукти та ягоди</div>
+                <div class="csum num">0 / 2</div>
+              </div>
+              <div class="prow">
+                <div class="pmeta"><div class="pname">Фрукти та ягоди</div><div class="psub num">200 ккал · 4 г білка</div></div>
+                <div class="pval num">0 / 400 г</div>
+              </div>
+              <div class="prow">
+                <div class="pmeta"><div class="pname">Банани, виноград, хурма</div><div class="psub num">200 ккал · 2.1 г білка</div></div>
+                <div class="pval num">0 / 210 г</div>
+              </div>
+            </div>
+
+            <div class="catcard">
+              <div class="cathead">
+                <div class="chip" style="background:var(--chip-ye);">Є</div>
+                <div class="cname">Горіхи та насіння</div>
+                <div class="csum num">0 / 2</div>
+              </div>
+              <div class="prow">
+                <div class="pmeta"><div class="pname">Будь-які горіхи</div><div class="psub num">60 ккал · 2 г білка</div></div>
+                <div class="pval num">0 / 10 г</div>
+              </div>
+              <div class="prow">
+                <div class="pmeta"><div class="pname">Насіння</div><div class="psub num">60 ккал · 2 г білка</div></div>
+                <div class="pval num">0 / 10 г</div>
+              </div>
+            </div>
+
+            <div class="catcard">
+              <div class="cathead">
+                <div class="chip pale" style="background:var(--chip-zh);">Ж</div>
+                <div class="cname">Солодощі, снеки, алкоголь</div>
+                <div class="csum num">0 / 6</div>
+              </div>
+              <div class="prow">
+                <div class="pmeta"><div class="pname">Будь-що (солодощі, снеки)</div><div class="psub num">425 ккал · 4.3 г білка</div></div>
+                <div class="pval num">0 / 85 г</div>
+              </div>
+              <div class="prow">
+                <div class="pmeta"><div class="pname">Сухе вино</div><div class="psub num">104 ккал · 0 г білка</div></div>
+                <div class="pval num">0 / 150 г</div>
               </div>
             </div>
           </div>
