@@ -63,11 +63,9 @@
   --chip-ye: #7B7789;  /* Є · горіхи та насіння */
   --chip-zh: #D4761F;  /* Ж · солодощі, снеки, алкоголь */
 
-  /* Літера на чипі. У світлій темі біла, але на світлих чипах В · Г · Ж
-     біла не проходить за контрастом — там береться --chip-ink-pale.
-     У темній темі чипи світлі пастелі, тому літера темна завжди. */
+  /* Літера на чипі: у світлій темі біла на всіх категоріях,
+     у темній — темна (чипи там світлі пастелі). */
   --chip-ink: #FFFFFF;
-  --chip-ink-pale: #12101A;
 
   /* ---------- СВІТЛА ТЕМА ---------- */
   --paper: #F4F4F6;
@@ -158,7 +156,6 @@
     --chip-ye: #A6A1B5;
     --chip-zh: #F0A75E;
     --chip-ink: #12101A;
-    --chip-ink-pale: #12101A;
   }
 }
 
@@ -198,12 +195,15 @@
   --state-full: linear-gradient(90deg, rgb(224 185 92 / 0%), rgb(224 185 92 / var(--state-alpha)));
   --state-full-ink: #E9C871;
 
-  --chip-v: #9C96C2;
+  --chip-a: #8DB0E6;
+  --chip-b: #E58873;
+  --chip-v: #AAC77F;
+  --chip-g: #DCBE62;
   --chip-d: #B79CE0;
   --chip-e: #E098B6;
-  --chip-a: #E0B95C;
-  --chip-b: #E58873;
-  --chip-g: #8CA0DE;
+  --chip-ye: #A6A1B5;
+  --chip-zh: #F0A75E;
+  --chip-ink: #12101A;
 }
 
 :root[data-theme="light"]{
@@ -251,5 +251,4 @@
   --chip-ye: #7B7789;
   --chip-zh: #D4761F;
   --chip-ink: #FFFFFF;
-  --chip-ink-pale: #12101A;
 }

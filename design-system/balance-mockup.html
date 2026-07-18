@@ -94,7 +94,6 @@ Type: Nunito (вшито як data URI). Усі ролі тексту керую
     --chip-ye: #7B7789;
     --chip-zh: #D4761F;
     --chip-ink: #FFFFFF;        /* літера на чипі */
-    --chip-ink-pale: #12101A;   /* для світлих чипів В · Г · Ж */
     --flag: #C15C48;
     --ring-track: #EBEAF0;
     --ring-a: #020202;
@@ -145,7 +144,6 @@ Type: Nunito (вшито як data URI). Усі ролі тексту керую
       --chip-ye: #A6A1B5;
       --chip-zh: #F0A75E;
       --chip-ink: #12101A;        /* у темній темі чипи — світлі пастелі */
-      --chip-ink-pale: #12101A;
       --flag: #E58873;
       --ring-track: rgba(255,255,255,.14);
       --ring-a: #8F88B4;
@@ -193,7 +191,6 @@ Type: Nunito (вшито як data URI). Усі ролі тексту керую
     --chip-ye: #A6A1B5;
     --chip-zh: #F0A75E;
     --chip-ink: #12101A;        /* у темній темі чипи — світлі пастелі */
-    --chip-ink-pale: #12101A;
     --flag: #E58873;
     --ring-track: rgba(255,255,255,.14);
     --ring-a: #8F88B4;
@@ -240,7 +237,6 @@ Type: Nunito (вшито як data URI). Усі ролі тексту керую
     --chip-ye: #7B7789;
     --chip-zh: #D4761F;
     --chip-ink: #FFFFFF;        /* літера на чипі */
-    --chip-ink-pale: #12101A;   /* для світлих чипів В · Г · Ж */
     --flag: #C15C48;
     --ring-track: #EBEAF0;
     --ring-a: #020202;
@@ -415,8 +411,6 @@ Type: Nunito (вшито як data URI). Усі ролі тексту керую
     width:26px;height:26px;border-radius:9px; display:flex;align-items:center;justify-content:center;
     color: var(--chip-ink); font-size:12.5px; font-weight:800; flex-shrink:0;
   }
-  /* В · Г · Ж — світлі відтінки, біла літера на них не читається */
-  .chip.pale{ color: var(--chip-ink-pale); }
   .cathead .cname{ font-size: var(--t-h3-size); font-weight: var(--t-h3-weight); letter-spacing:-0.01em; flex:1; min-width:0; }
   .cathead .csum{ font-size: var(--t-body2-size); font-weight: var(--t-body2-weight); color: var(--ink-faint); white-space:nowrap; }
 
@@ -765,7 +759,7 @@ Type: Nunito (вшито як data URI). Усі ролі тексту керую
 
             <div class="catcard">
               <div class="cathead">
-                <div class="chip pale" style="background:var(--chip-v);">В</div>
+                <div class="chip" style="background:var(--chip-v);">В</div>
                 <div class="cname">Овочі та гриби</div>
                 <div class="csum num">1 / 2</div>
               </div>
@@ -781,7 +775,7 @@ Type: Nunito (вшито як data URI). Усі ролі тексту керую
 
             <div class="catcard">
               <div class="cathead">
-                <div class="chip pale" style="background:var(--fat);">Г</div>
+                <div class="chip" style="background:var(--fat);">Г</div>
                 <div class="cname">Жири та соуси</div>
                 <div class="csum num">0 / 4</div>
               </div>
@@ -845,7 +839,7 @@ Type: Nunito (вшито як data URI). Усі ролі тексту керую
 
             <div class="catcard">
               <div class="cathead">
-                <div class="chip pale" style="background:var(--chip-zh);">Ж</div>
+                <div class="chip" style="background:var(--chip-zh);">Ж</div>
                 <div class="cname">Солодощі, снеки, алкоголь</div>
                 <div class="csum num">0 / 6</div>
               </div>
