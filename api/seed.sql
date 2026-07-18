@@ -18,10 +18,11 @@ INSERT INTO categories (`key`, letter, name, base_kcal, color_var, sort_order) V
   ('E',  'Е', 'Фрукти та ягоди',           200, '--chip-e',  6),
   ('YE', 'Є', 'Горіхи та насіння',          60, '--chip-ye', 7),
   ('ZH', 'Ж', 'Солодощі, снеки, алкоголь', 425, '--chip-zh', 8)
+AS new
 ON DUPLICATE KEY UPDATE
-  letter = VALUES(letter), name = VALUES(name),
-  base_kcal = VALUES(base_kcal), color_var = VALUES(color_var),
-  sort_order = VALUES(sort_order);
+  letter = new.letter, name = new.name,
+  base_kcal = new.base_kcal, color_var = new.color_var,
+  sort_order = new.sort_order;
 
 INSERT INTO products (id, category_key, name, unit, kcal_per_unit, protein_per_unit, max_units, sort_order) VALUES
   -- А · крупи та злаки
@@ -81,10 +82,11 @@ INSERT INTO products (id, category_key, name, unit, kcal_per_unit, protein_per_u
   ('zh-beer',      'ZH', 'Пиво',                       'g', 0.4290, 0.0000, 240.00, 4),
   ('zh-wine',      'ZH', 'Сухе вино',                  'g', 0.6930, 0.0000, 150.00, 5),
   ('zh-fruit',     'ZH', 'Фрукти та ягоди',            'g', 0.5000, 0.0100, NULL,   6)
+AS new
 ON DUPLICATE KEY UPDATE
-  category_key = VALUES(category_key), name = VALUES(name), unit = VALUES(unit),
-  kcal_per_unit = VALUES(kcal_per_unit), protein_per_unit = VALUES(protein_per_unit),
-  max_units = VALUES(max_units), sort_order = VALUES(sort_order);
+  category_key = new.category_key, name = new.name, unit = new.unit,
+  kcal_per_unit = new.kcal_per_unit, protein_per_unit = new.protein_per_unit,
+  max_units = new.max_units, sort_order = new.sort_order;
 
 INSERT INTO workout_types (id, name, sort_order) VALUES
   ('gym',   'Тренування в залі', 1),
@@ -94,7 +96,8 @@ INSERT INTO workout_types (id, name, sort_order) VALUES
   ('swim',  'Плавання',          5),
   ('yoga',  'Йога',              6),
   ('other', 'Інше',              7)
-ON DUPLICATE KEY UPDATE name = VALUES(name), sort_order = VALUES(sort_order);
+AS new
+ON DUPLICATE KEY UPDATE name = new.name, sort_order = new.sort_order;
 
 INSERT INTO measurement_kinds (`key`, name, unit, sort_order) VALUES
   ('weight', 'Вага',            'кг', 1),
@@ -102,4 +105,5 @@ INSERT INTO measurement_kinds (`key`, name, unit, sort_order) VALUES
   ('chest',  'Обхват грудей',   'см', 3),
   ('waist',  'Обхват талії',    'см', 4),
   ('hips',   'Обхват стегон',   'см', 5)
-ON DUPLICATE KEY UPDATE name = VALUES(name), unit = VALUES(unit), sort_order = VALUES(sort_order);
+AS new
+ON DUPLICATE KEY UPDATE name = new.name, unit = new.unit, sort_order = new.sort_order;

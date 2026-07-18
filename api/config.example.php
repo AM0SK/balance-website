@@ -1,7 +1,9 @@
 <?php
 /**
- * Скопіювати у config.php і заповнити своїми значеннями.
- * config.php у .gitignore — у репозиторій він не потрапляє.
+ * ШАБЛОН. Цей файл відстежується git — справжні паролі сюди НЕ вписувати.
+ *
+ * Скопіювати у config.php (той у .gitignore) і заповнювати вже там:
+ *   cp api/config.example.php api/config.php
  */
 
 return [

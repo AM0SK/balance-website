@@ -133,9 +133,11 @@ switch ("$method /$path") {
             $pdo->prepare('DELETE FROM consumption WHERE user_id = ? AND product_id = ? AND day = ?')
                 ->execute([$userId, $productId, $day]);
         } else {
+            // Аліас `new` замість застарілої VALUES(col): MySQL 8.0.20+
+            // попереджає про неї, і в майбутніх версіях її приберуть.
             $pdo->prepare(
-                'INSERT INTO consumption (user_id, product_id, day, units) VALUES (?, ?, ?, ?)
-                 ON DUPLICATE KEY UPDATE units = VALUES(units)'
+                'INSERT INTO consumption (user_id, product_id, day, units) VALUES (?, ?, ?, ?) AS new
+                 ON DUPLICATE KEY UPDATE units = new.units'
             )->execute([$userId, $productId, $day, $units]);
         }
 
@@ -176,8 +178,8 @@ switch ("$method /$path") {
             $pdo->prepare('DELETE FROM steps WHERE user_id = ? AND day = ?')->execute([$userId, $day]);
         } else {
             $pdo->prepare(
-                'INSERT INTO steps (user_id, day, steps) VALUES (?, ?, ?)
-                 ON DUPLICATE KEY UPDATE steps = VALUES(steps)'
+                'INSERT INTO steps (user_id, day, steps) VALUES (?, ?, ?) AS new
+                 ON DUPLICATE KEY UPDATE steps = new.steps'
             )->execute([$userId, $day, $steps]);
         }
 
@@ -197,8 +199,8 @@ switch ("$method /$path") {
         }
 
         $pdo->prepare(
-            'INSERT INTO measurements (user_id, kind_key, day, value) VALUES (?, ?, ?, ?)
-             ON DUPLICATE KEY UPDATE value = VALUES(value)'
+            'INSERT INTO measurements (user_id, kind_key, day, value) VALUES (?, ?, ?, ?) AS new
+             ON DUPLICATE KEY UPDATE value = new.value'
         )->execute([$userId, $kind, $day, $value]);
 
         sendJson(['ok' => true, 'measurements' => fetchMeasurements($pdo, $userId)]);
