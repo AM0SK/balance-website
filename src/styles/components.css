@@ -1,0 +1,944 @@
+/* ==========================================================================
+   Balance — компоненти.
+   Портовано з design-system/balance-mockup.html без візуальних змін.
+   Відмінності від макета лише в тому, що там був телефон у рамці,
+   а тут — справжній екран: absolute → fixed, додано safe-area.
+   ========================================================================== */
+
+/* ---------- каркас екрана ---------- */
+/*
+ * Висота фіксована, а не min-height: інакше росте сама сторінка
+ * і закріплена шапка їде вгору разом із контентом.
+ * Скролиться тільки .stack.
+ */
+.app {
+  height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 0 var(--screen-pad-x);
+  /* Mini-app ширший за телефон виглядає розтягнутим — тримаємо мобільну колонку. */
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 4px 16px;
+  padding-top: max(14px, env(safe-area-inset-top));
+  flex-shrink: 0;
+}
+.wordmark {
+  font-size: var(--t-logo-size);
+  font-weight: var(--t-logo-weight);
+  letter-spacing: -0.02em;
+}
+.topbar .right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--grad);
+  border: 2px solid var(--paper-raised);
+  flex-shrink: 0;
+  object-fit: cover;
+}
+.gearbtn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  color: var(--ink-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.gearbtn svg {
+  width: 15px;
+  height: 15px;
+}
+
+.pagehead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 2px;
+  min-height: var(--btn-h);
+}
+.pagetitle {
+  font-size: var(--t-h1-size);
+  font-weight: var(--t-h1-weight);
+  letter-spacing: -0.02em;
+}
+.btn-add {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: var(--btn-h);
+  padding: 0 15px;
+  border-radius: var(--radius-pill);
+  background: var(--btn-add-bg);
+  color: var(--btn-add-ink);
+  font-size: var(--t-button-size);
+  font-weight: var(--t-button-weight);
+  border: 1px solid var(--btn-add-border);
+  box-shadow: var(--btn-add-shadow);
+  flex-shrink: 0;
+}
+.btn-add svg {
+  width: 14px;
+  height: 14px;
+}
+
+/*
+ * Внутрішні відступи обов'язкові: без них тінь карток обрізається
+ * з боків і згори. Від'ємний margin повертає колонку на місце.
+ */
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--stack-gap);
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 8px calc(92px + env(safe-area-inset-bottom));
+  margin: -8px -8px 0;
+  scrollbar-width: none;
+}
+.stack::-webkit-scrollbar {
+  display: none;
+}
+/* Інакше flex стискає картки по висоті. */
+.stack > * {
+  flex-shrink: 0;
+}
+
+/* ---------- єдиний клас поверхні для всіх карток ---------- */
+.card,
+.catcard,
+.chartcard,
+.measures-card,
+.modal-sheet,
+.tabbar,
+.gearbtn {
+  background: var(--card);
+  border: 1px solid var(--line);
+  box-shadow: var(--card-shadow);
+  -webkit-backdrop-filter: blur(var(--card-blur));
+  backdrop-filter: blur(var(--card-blur));
+}
+
+.card {
+  border-radius: var(--radius-card);
+  padding: var(--card-pad);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  width: 100%;
+  text-align: left;
+}
+.card .meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  min-width: 0;
+}
+/* Картка Головної — теж <button>, тож рядки всередині мають бути блоковими. */
+.card .meta > span {
+  display: block;
+}
+.icon-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--ink-faint);
+  font-size: var(--t-label-size);
+  font-weight: var(--t-label-weight);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.icon-row svg {
+  width: 14px;
+  height: 14px;
+}
+.card .headline {
+  font-size: var(--t-h2-size);
+  font-weight: var(--t-h2-weight);
+  letter-spacing: -0.02em;
+}
+.card .headline small {
+  font-size: var(--t-body2-size);
+  font-weight: var(--t-body2-weight);
+  color: var(--ink-faint);
+  margin-left: 2px;
+  letter-spacing: 0;
+}
+.card .note {
+  font-size: var(--t-body2-size);
+  font-weight: var(--t-body2-weight);
+  color: var(--ink-soft);
+  line-height: 1.4;
+}
+.card .note b {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+/* ---------- кільце прогресу ---------- */
+.ring {
+  --pct: 50;
+  width: var(--ring-size);
+  height: var(--ring-size);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+/*
+ * Кільце — маска, а не накладка: тоді «дірка» справді прозора в обох темах.
+ * closest-side обов'язковий — інакше радіус рахується до кута квадрата
+ * і товщина обводки виходить майже втричі більшою за задану.
+ */
+.ring .fill {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(var(--accent-line) calc(var(--pct) * 1%), var(--ring-track) 0);
+  -webkit-mask: radial-gradient(
+    circle closest-side at 50% 50%,
+    transparent 0 calc(100% - var(--ring-stroke)),
+    #000 calc(100% - var(--ring-stroke) + 0.5px)
+  );
+  mask: radial-gradient(
+    circle closest-side at 50% 50%,
+    transparent 0 calc(100% - var(--ring-stroke)),
+    #000 calc(100% - var(--ring-stroke) + 0.5px)
+  );
+}
+.ring b {
+  position: relative;
+  z-index: 1;
+  font-size: var(--t-value-size);
+  font-weight: var(--t-value-weight);
+}
+
+/* ---------- шкали поза карткою ---------- */
+.macroblock {
+  padding: 2px 6px 6px;
+}
+.macrorow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 7px;
+}
+.macrorow .k {
+  font-size: var(--t-label-size);
+  font-weight: var(--t-label-weight);
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.macrorow .v {
+  font-size: var(--t-value-size);
+  font-weight: var(--t-value-weight);
+}
+.progress-line {
+  height: var(--progress-h);
+  border-radius: 4px;
+  background: var(--ring-track);
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+.progress-line:last-child {
+  margin-bottom: 0;
+}
+.progress-line i {
+  display: block;
+  height: 100%;
+  background: var(--accent-line);
+  border-radius: 4px;
+  transition: width 0.25s ease;
+}
+
+/* ---------- вага, заміри ---------- */
+.trend {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--t-body2-size);
+  font-weight: 700;
+  color: var(--plum);
+}
+.sparkline {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 34px;
+}
+.sparkline i {
+  width: 5px;
+  border-radius: 2px 2px 0 0;
+  background: var(--ring-track);
+}
+.sparkline i.now {
+  background: var(--spark-now);
+}
+
+.measure-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+  width: 100%;
+  text-align: left;
+}
+.measure-row:first-of-type {
+  border-top: none;
+}
+.measure-row .name {
+  font-size: var(--t-body1-size);
+  font-weight: var(--t-body1-weight);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.measure-row .val {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.measure-row .val b {
+  font-size: var(--t-value-size);
+  font-weight: var(--t-value-weight);
+}
+.measure-row .val span {
+  font-size: var(--t-body2-size);
+  font-weight: var(--t-body2-weight);
+  color: var(--ink-faint);
+}
+/* Від'ємна дельта — кольором акценту; специфічність вища за правило вище. */
+.measure-row .val .delta {
+  font-weight: var(--t-value-weight);
+}
+.measure-row .val .delta.down {
+  color: var(--accent-line);
+}
+
+/* ---------- раціон: картки категорій ---------- */
+.catcard {
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+.cathead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 15px 12px;
+}
+.chip {
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-chip);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--chip-ink);
+  font-size: 12.5px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+.cathead .cname {
+  font-size: var(--t-h3-size);
+  font-weight: var(--t-h3-weight);
+  letter-spacing: -0.01em;
+  flex: 1;
+  min-width: 0;
+}
+.cathead .csum {
+  font-size: var(--t-body2-size);
+  font-weight: var(--t-body2-weight);
+  color: var(--ink-faint);
+  white-space: nowrap;
+}
+
+.prow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 15px;
+  border-top: 1px solid var(--line);
+  width: 100%;
+  text-align: left;
+}
+/* Рядок — <button>, тож усі вкладені span треба явно робити блоковими. */
+.prow .pmeta {
+  min-width: 0;
+  display: block;
+}
+.prow .pname {
+  display: block;
+  font-size: var(--t-body1-size);
+  font-weight: var(--t-body1-weight);
+  margin-bottom: 2px;
+}
+.prow .psub {
+  display: block;
+  font-size: var(--t-body2-size);
+  font-weight: var(--t-body2-weight);
+  color: var(--ink-faint);
+}
+.prow .pval {
+  font-size: var(--t-value-size);
+  font-weight: var(--t-value-weight);
+  color: var(--ink-faint);
+  white-space: nowrap;
+  padding-top: 1px;
+}
+/* Заливка йде зліва направо: прозоре → колір. */
+.prow.go {
+  background: var(--state-go);
+}
+.prow.go .pval {
+  color: var(--state-go-ink);
+}
+.prow.full {
+  background: var(--state-full);
+}
+.prow.full .pval {
+  color: var(--state-full-ink);
+}
+
+.legend {
+  display: flex;
+  gap: 14px;
+  padding: 4px 6px 0;
+  flex-wrap: wrap;
+}
+.legend span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10.5px;
+  color: var(--ink-faint);
+  font-weight: 600;
+}
+.legend i {
+  width: 14px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+/* ---------- великий показник і графіки ---------- */
+.statbig {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 2px 6px 14px;
+}
+.statbig .lbl {
+  font-size: var(--t-label-size);
+  font-weight: var(--t-label-weight);
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.statbig .val {
+  font-size: var(--t-num-size);
+  font-weight: var(--t-num-weight);
+  letter-spacing: -0.03em;
+}
+.statbig .val u {
+  text-decoration: none;
+  font-size: var(--t-h3-size);
+  font-weight: var(--t-body1-weight);
+  color: var(--ink-faint);
+}
+
+.chartcard {
+  border-radius: var(--radius-card);
+  padding: 17px 15px 13px;
+}
+.chartcard h3 {
+  font-size: var(--t-h3-size);
+  font-weight: var(--t-h3-weight);
+  margin: 0 0 2px;
+  letter-spacing: -0.01em;
+}
+.chartcard p {
+  font-size: var(--t-body2-size);
+  font-weight: var(--t-body2-weight);
+  color: var(--ink-faint);
+  margin: 0 0 16px;
+}
+.bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 120px;
+  position: relative;
+}
+.bars .goal {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--ink-faint);
+  opacity: 0.4;
+}
+.bars .goal::after {
+  content: attr(data-g);
+  position: absolute;
+  right: 0;
+  top: -14px;
+  font-size: 9px;
+  color: var(--ink-faint);
+}
+.bars i {
+  flex: 1;
+  background: var(--bar-idle);
+  border-radius: 3px 3px 0 0;
+  min-width: 4px;
+}
+.bars i.hi {
+  background: var(--accent-line);
+}
+.barlabels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  font-size: 9.5px;
+  color: var(--ink-faint);
+}
+
+/* ---------- історія просто на фоні ---------- */
+.histlist {
+  display: flex;
+  flex-direction: column;
+  padding: 2px 6px 0;
+}
+.histlist .hrow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 0;
+  border-top: 1px solid var(--line);
+}
+.histlist .hrow:first-child {
+  border-top: none;
+}
+.histlist .hname {
+  font-size: var(--t-body1-size);
+  font-weight: var(--t-body1-weight);
+}
+.histlist .hdate {
+  font-size: var(--t-body2-size);
+  font-weight: var(--t-body2-weight);
+  color: var(--ink-faint);
+}
+.histlist .hval {
+  font-size: var(--t-value-size);
+  font-weight: var(--t-value-weight);
+}
+.histlist .hval.burn {
+  color: var(--accent-line);
+}
+
+/* ---------- рядки налаштувань просто на фоні ---------- */
+.plainrows {
+  padding: 0 6px;
+}
+.plainrows .prow2 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+  width: 100%;
+  text-align: left;
+}
+.plainrows .prow2:first-child {
+  border-top: none;
+}
+.plainrows .name {
+  font-size: var(--t-body1-size);
+  font-weight: var(--t-body1-weight);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.plainrows .sub {
+  font-size: var(--t-body2-size);
+  font-weight: var(--t-body2-weight);
+  color: var(--ink-faint);
+}
+
+/* ---------- кнопки ---------- */
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: var(--btn-h);
+  border-radius: var(--radius-pill);
+  font-size: var(--t-button-size);
+  font-weight: var(--t-button-weight);
+  border: 1px solid transparent;
+  width: 100%;
+}
+.btn svg {
+  width: 14px;
+  height: 14px;
+}
+.btn-grad {
+  background: var(--grad);
+  color: #fff;
+  box-shadow: var(--btn-shadow);
+  border-color: transparent;
+}
+.btn-outline {
+  background: transparent;
+  border-color: var(--line);
+  color: var(--ink);
+}
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.btn-row {
+  display: flex;
+  gap: 10px;
+}
+.btn-row .btn {
+  width: auto;
+  flex: 1;
+}
+
+/* ---------- налаштування ---------- */
+.avatar-lg {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: var(--grad);
+  margin: 4px auto 10px;
+  position: relative;
+  object-fit: cover;
+  display: block;
+}
+.avatar-wrap {
+  width: 76px;
+  margin: 4px auto 10px;
+  position: relative;
+}
+.avatar-wrap .avatar-lg {
+  margin: 0;
+}
+.avatar-wrap .edit {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--paper);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--paper);
+  font-size: 12px;
+}
+.profile-name {
+  text-align: center;
+  font-size: var(--t-h3-size);
+  font-weight: var(--t-h3-weight);
+  letter-spacing: -0.02em;
+  margin-bottom: 2px;
+}
+.username {
+  text-align: center;
+  font-size: var(--t-body2-size);
+  font-weight: var(--t-body2-weight);
+  color: var(--ink-faint);
+  margin-bottom: 20px;
+}
+.sectionlbl {
+  font-size: var(--t-label-size);
+  font-weight: var(--t-label-weight);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--ink-faint);
+  margin: 8px 6px 6px;
+}
+.measures-card {
+  border-radius: var(--radius-card);
+  padding: 4px 15px 2px;
+}
+.flagdot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent-line);
+  flex-shrink: 0;
+}
+
+/* ---------- таб-бар: без заливки-пігулки ---------- */
+.tabbar {
+  position: fixed;
+  left: 14px;
+  right: 14px;
+  bottom: max(14px, env(safe-area-inset-bottom));
+  max-width: 452px;
+  margin: 0 auto;
+  background: var(--tabbar-bg);
+  border-radius: var(--radius-pill);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 6px 4px;
+  z-index: 20;
+  -webkit-backdrop-filter: blur(var(--nav-blur));
+  backdrop-filter: blur(var(--nav-blur));
+}
+.tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  color: var(--ink-faint);
+  font-size: var(--t-tab-size);
+  font-weight: var(--t-tab-weight);
+  padding: 4px 10px;
+}
+.tab svg {
+  width: 18px;
+  height: 18px;
+}
+.tab.active {
+  color: var(--tab-active);
+}
+
+/* ---------- модалка ---------- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--overlay-tint);
+  padding: 0 18px;
+  -webkit-backdrop-filter: blur(var(--overlay-blur));
+  backdrop-filter: blur(var(--overlay-blur));
+}
+.modal-sheet {
+  width: 100%;
+  max-width: 420px;
+  border-radius: var(--radius-card);
+  padding: 22px 18px 18px;
+  position: relative;
+  max-height: 88dvh;
+  overflow-y: auto;
+}
+.modal-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--fill-tint);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-soft);
+}
+.modal-close svg {
+  width: 13px;
+  height: 13px;
+}
+.modal-title {
+  font-size: var(--t-h3-size);
+  font-weight: var(--t-h3-weight);
+  letter-spacing: -0.02em;
+  text-align: center;
+  margin: 2px 0 12px;
+  padding: 0 28px;
+}
+.modal-hint {
+  text-align: center;
+  font-size: var(--t-body2-size);
+  font-weight: var(--t-body2-weight);
+  color: var(--ink-faint);
+  margin-bottom: 10px;
+}
+.modal-pill {
+  background: var(--fill-tint);
+  border-radius: 12px;
+  padding: 9px;
+  text-align: center;
+  font-size: var(--t-body2-size);
+  font-weight: var(--t-body2-weight);
+  color: var(--ink-soft);
+  margin-bottom: 18px;
+}
+.modal-qty {
+  text-align: center;
+  font-size: var(--t-body1-size);
+  font-weight: var(--t-body2-weight);
+  color: var(--ink-soft);
+  margin-bottom: 10px;
+}
+.modal-qty b {
+  color: var(--ink);
+  font-weight: var(--t-value-weight);
+}
+.modal-values {
+  display: flex;
+  justify-content: center;
+  gap: 34px;
+  margin-bottom: 18px;
+}
+.modal-values div {
+  text-align: center;
+}
+.modal-values b {
+  display: block;
+  font-size: var(--t-h2-size);
+  font-weight: var(--t-h2-weight);
+  letter-spacing: -0.02em;
+}
+.modal-values span {
+  font-size: var(--t-body2-size);
+  font-weight: var(--t-body2-weight);
+  color: var(--ink-faint);
+}
+
+/* Повзунок: нативний input із заміненою доріжкою, щоб працювали клавіатура і тач. */
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: calc(100% - 6px);
+  margin: 0 3px 20px;
+  height: 20px;
+  background: transparent;
+  display: block;
+}
+.slider::-webkit-slider-runnable-track {
+  height: var(--progress-h);
+  border-radius: 4px;
+  background: linear-gradient(
+    to right,
+    transparent 0 var(--pct),
+    var(--ring-track) var(--pct) 100%
+  ),
+  var(--grad-line);
+}
+.slider::-moz-range-track {
+  height: var(--progress-h);
+  border-radius: 4px;
+  background: var(--ring-track);
+}
+.slider::-moz-range-progress {
+  height: var(--progress-h);
+  border-radius: 4px;
+  background: var(--grad-line);
+}
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  border: 1px solid var(--line);
+  box-shadow: 0 4px 10px rgba(2, 2, 2, 0.25);
+  margin-top: -7px;
+}
+.slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  border: 1px solid var(--line);
+  box-shadow: 0 4px 10px rgba(2, 2, 2, 0.25);
+}
+
+.quickpct {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.quickpct button {
+  flex: 1;
+  height: 38px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink-soft);
+  font-size: 12.5px;
+  font-weight: 700;
+  font-family: var(--font-ui);
+}
+.quickpct button.on {
+  background: var(--grad);
+  border-color: transparent;
+  color: #fff;
+}
+
+/* ---------- поля вводу ---------- */
+.field {
+  margin-bottom: 14px;
+}
+.field label {
+  display: block;
+  font-size: var(--t-label-size);
+  font-weight: var(--t-label-weight);
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+}
+.field input,
+.field select {
+  width: 100%;
+  height: var(--btn-h);
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--fill-tint);
+  color: var(--ink);
+  font-size: var(--t-body1-size);
+  font-weight: var(--t-body1-weight);
+  font-family: var(--font-ui);
+}
+.field input:focus-visible,
+.field select:focus-visible {
+  outline: 2px solid var(--accent-line);
+  outline-offset: 1px;
+}
+
+/* ---------- порожній стан ---------- */
+.empty {
+  text-align: center;
+  color: var(--ink-faint);
+  font-size: var(--t-body2-size);
+  padding: 26px 10px;
+}
+
+/* Клавіатурна навігація має бути видимою скрізь. */
+:where(button, a, input, select, [tabindex]):focus-visible {
+  outline: 2px solid var(--accent-line);
+  outline-offset: 2px;
+  border-radius: 8px;
+}

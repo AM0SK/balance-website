@@ -1,0 +1,130 @@
+import { useMemo, useState } from 'react'
+import { Icon } from '@/components/ui/Icon'
+import { Modal } from '@/components/ui/Modal'
+import { dateShort, num, weekday } from '@/lib/format'
+import { useStore } from '@/lib/store'
+
+export function StepsScreen() {
+  const { profile, steps, addSteps } = useStore()
+  const [adding, setAdding] = useState(false)
+
+  const weeklyAvg = useMemo(() => {
+    const week = steps.slice(0, 7)
+    return week.length === 0 ? 0 : week.reduce((s, e) => s + e.steps, 0) / week.length
+  }, [steps])
+
+  const chart = useMemo(() => steps.slice(0, 12).reverse(), [steps])
+  const maxSteps = Math.max(profile.stepsGoal, ...chart.map((s) => s.steps))
+
+  return (
+    <>
+      <div className="pagehead">
+        <h1 className="pagetitle">Кроки</h1>
+        <button className="btn-add" onClick={() => setAdding(true)}>
+          <Icon name="plus" strokeWidth={2.6} />
+          Додати
+        </button>
+      </div>
+
+      <div className="statbig">
+        <span className="lbl">середньотижневий показник</span>
+        <span className="val num">{num(weeklyAvg)}</span>
+      </div>
+
+      {chart.length > 0 && (
+        <section className="chartcard">
+          <h3>Щоденні кроки</h3>
+          <p>За останні {chart.length} днів</p>
+          <div className="bars">
+            <div
+              className="goal"
+              data-g={num(profile.stepsGoal)}
+              style={{ bottom: `${(profile.stepsGoal / maxSteps) * 100}%` }}
+            />
+            {chart.map((s) => (
+              <i
+                key={s.id}
+                className={s.steps >= profile.stepsGoal ? 'hi' : ''}
+                style={{ height: `${(s.steps / maxSteps) * 100}%` }}
+              />
+            ))}
+          </div>
+          <div className="barlabels">
+            <span>{chart[0] && dateShort(chart[0].date)}</span>
+            <span>{chart.at(-1) && dateShort(chart.at(-1)!.date)}</span>
+          </div>
+        </section>
+      )}
+
+      <div className="histlist">
+        {steps.length === 0 && <p className="empty">Ще немає записів</p>}
+        {steps.map((s) => (
+          <div className="hrow" key={s.id}>
+            <div>
+              <div className="hname">{weekday(s.date)}</div>
+              <div className="hdate">{dateShort(s.date)}</div>
+            </div>
+            <div className="hval num">{num(s.steps)}</div>
+          </div>
+        ))}
+      </div>
+
+      {adding && (
+        <AddStepsModal
+          onClose={() => setAdding(false)}
+          onSave={(date, value) => {
+            addSteps(date, value)
+            setAdding(false)
+          }}
+        />
+      )}
+    </>
+  )
+}
+
+function AddStepsModal({
+  onClose,
+  onSave,
+}: {
+  onClose: () => void
+  onSave: (date: string, steps: number) => void
+}) {
+  const [date, setDate] = useState(new Date().toISOString().slice(0, 10))
+  const [value, setValue] = useState('')
+
+  const parsed = Number(value)
+  const valid = Number.isFinite(parsed) && parsed > 0
+
+  return (
+    <Modal title="Кроки за день" onClose={onClose}>
+      <p className="modal-hint">Запис за цю дату буде перезаписано</p>
+
+      <div className="field">
+        <label htmlFor="s-date">Дата</label>
+        <input id="s-date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+      </div>
+
+      <div className="field">
+        <label htmlFor="s-count">Кроків</label>
+        <input
+          id="s-count"
+          type="number"
+          inputMode="numeric"
+          min={1}
+          placeholder="напр. 12 000"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+        />
+      </div>
+
+      <div className="btn-row">
+        <button className="btn btn-outline" onClick={onClose}>
+          Скасувати
+        </button>
+        <button className="btn btn-grad" disabled={!valid} onClick={() => onSave(date, parsed)}>
+          Зберегти
+        </button>
+      </div>
+    </Modal>
+  )
+}

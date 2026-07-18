@@ -1,0 +1,254 @@
+/* ==========================================================================
+   Balance — design tokens
+   Джерело правди для вёрстки сайту. Значення збігаються з tokens.json
+   і з макетом design-system/balance-mockup.html.
+
+   Шрифт: Nunito (variable 200–1000).
+   У реальному сайті підключати через Google Fonts:
+     <link rel="preconnect" href="https://fonts.googleapis.com">
+     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@200..1000&display=swap" rel="stylesheet">
+   ========================================================================== */
+
+:root{
+  /* ---------- ТИПОГРАФІКА ---------- */
+  --t-logo-size: 15px;   --t-logo-weight: 700;
+  --t-h1-size: 26px;     --t-h1-weight: 600;
+  --t-h2-size: 26px;     --t-h2-weight: 700;
+  --t-h3-size: 15px;     --t-h3-weight: 700;
+  --t-num-size: 42px;    --t-num-weight: 700;
+  --t-body1-size: 13px;  --t-body1-weight: 700;
+  --t-body2-size: 12px;  --t-body2-weight: 400;
+  --t-label-size: 12px;  --t-label-weight: 500;
+  --t-value-size: 13px;  --t-value-weight: 700;
+  --t-button-size: 12px; --t-button-weight: 600;
+  --t-tab-size: 10px;    --t-tab-weight: 700;
+
+  --font-ui: "Nunito", -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  /* ---------- ГЕОМЕТРІЯ ---------- */
+  --radius-card: 24px;
+  --radius-row: 18px;
+  --radius-chip: 9px;
+  --radius-pill: 999px;
+
+  --btn-h: 40px;
+  --ring-size: 68px;
+  --ring-stroke: 6px;      /* дорівнює висоті шкал прогресу */
+  --progress-h: 6px;
+  --screen-pad-x: 14px;
+  --card-pad: 17px;
+  --stack-gap: 12px;
+
+  /* ---------- ЕФЕКТИ ---------- */
+  --card-blur: 5px;
+  --nav-blur: 10px;
+  --overlay-blur: 5px;
+  --bg-stop: 65%;          /* де фон темної теми виходить у чорний */
+  --card-alpha-light: 100%;
+  --card-alpha-dark: 5%;
+  --state-alpha-light: 20%;
+  --state-alpha-dark: 15%;
+
+  /* ---------- КОЛІР КАТЕГОРІЙ ----------
+     Відтінки взяті з реального застосунку (А синій, Б червоний, В зелений,
+     Г жовтий, Д фіолетовий, Е рожевий, Є сірий, Ж помаранчевий)
+     і приглушені під палітру Balance. Значення нижче — світла тема. */
+  --chip-a: #5077B5;   /* A · крупи та злаки */
+  --chip-b: #C15C48;   /* Б · білкові */
+  --chip-v: #75954B;   /* В · овочі та гриби */
+  --chip-g: #C29C2E;   /* Г · жири та соуси */
+  --chip-d: #8B5FBF;   /* Д · молочні */
+  --chip-e: #C15C8A;   /* Е · фрукти та ягоди */
+  --chip-ye: #7B7789;  /* Є · горіхи та насіння */
+  --chip-zh: #D4761F;  /* Ж · солодощі, снеки, алкоголь */
+
+  /* Літера на чипі: у світлій темі біла на всіх категоріях,
+     у темній — темна (чипи там світлі пастелі). */
+  --chip-ink: #FFFFFF;
+
+  /* ---------- СВІТЛА ТЕМА ---------- */
+  --paper: #F4F4F6;
+  --paper-raised: #FFFFFF;
+  --card: rgb(255 255 255 / var(--card-alpha-light));
+  --fill-tint: rgba(52,49,71,.055);
+  --ink: #0C0B10;
+  --ink-soft: #5B5866;
+  --ink-faint: #9895A3;
+  --line: #E6E5EC;
+
+  --plum: #343147;
+  --near-black: #020202;
+  --accent-line: #C15C48;   /* кільця, стовпчики графіків, шкала Білки */
+  --tab-active: #020202;
+  --ring-track: #EBEAF0;
+  --bar-idle: #E7E6EE;
+  --spark-now: #020202;
+
+  --grad: linear-gradient(135deg, #3D3A54, #020202);          /* заливка кнопок, аватар */
+  --grad-line: linear-gradient(90deg, #020202, #4A4667);      /* шкали, слайдер: темне ліворуч */
+  --page-bg: var(--paper);
+
+  --card-shadow: 0 14px 34px -18px rgba(2,2,2,.28), 0 2px 10px -6px rgba(2,2,2,.10);
+  --btn-shadow: 0 10px 20px -10px rgba(2,2,2,.5);
+  --tabbar-bg: rgba(255,255,255,.86);
+  --overlay-tint: rgba(2,2,2,.28);
+
+  --btn-add-bg: linear-gradient(135deg, #3D3A54, #020202);
+  --btn-add-ink: #FFFFFF;
+  --btn-add-border: transparent;
+  --btn-add-shadow: 0 10px 20px -10px rgba(2,2,2,.5);
+
+  /* стан рядка продукту: прозоре ліворуч → колір праворуч */
+  --state-alpha: var(--state-alpha-light);
+  --state-go: linear-gradient(90deg, rgb(62 158 110 / 0%), rgb(62 158 110 / var(--state-alpha)));
+  --state-go-ink: #2C6E4C;
+  --state-full: linear-gradient(90deg, rgb(204 154 58 / 0%), rgb(204 154 58 / var(--state-alpha)));
+  --state-full-ink: #8A6516;
+}
+
+/* ---------- ТЕМНА ТЕМА ---------- */
+/* Порядок важливий: спершу системна тема, далі ручний перемикач,
+   щоб data-theme завжди перекривав prefers-color-scheme в обидва боки. */
+@media (prefers-color-scheme: dark){
+  :root{
+    --paper: #0E0C14;
+    --paper-raised: rgba(255,255,255,.06);
+    --card: rgb(255 255 255 / var(--card-alpha-dark));
+    --fill-tint: rgba(255,255,255,.07);
+    --ink: #F3F1F7;
+    --ink-soft: #C7C3D2;
+    --ink-faint: #8B87A0;
+    --line: rgba(255,255,255,.12);
+
+    --plum: #B7B2D6;
+    --accent-line: #E58873;
+    --tab-active: #FFFFFF;
+    --ring-track: rgba(255,255,255,.14);
+    --bar-idle: rgba(255,255,255,.12);
+    --spark-now: #EDEAF5;
+
+    --grad: linear-gradient(135deg, #58547A, #020202);
+    --grad-line: linear-gradient(90deg, #6B6592, #EDEAF5);
+    --page-bg: linear-gradient(180deg, #343147 0%, #020202 var(--bg-stop));
+
+    --card-shadow: 0 18px 40px -20px rgba(0,0,0,.6);
+    --tabbar-bg: rgba(38,35,52,.82);
+    --overlay-tint: rgba(2,2,2,.22);
+
+    --btn-add-bg: transparent;
+    --btn-add-ink: #F3F1F7;
+    --btn-add-border: rgba(255,255,255,.12);
+    --btn-add-shadow: none;
+
+    --state-alpha: var(--state-alpha-dark);
+    --state-go: linear-gradient(90deg, rgb(88 208 148 / 0%), rgb(88 208 148 / var(--state-alpha)));
+    --state-go-ink: #7FE0AE;
+    --state-full: linear-gradient(90deg, rgb(224 185 92 / 0%), rgb(224 185 92 / var(--state-alpha)));
+    --state-full-ink: #E9C871;
+
+    --chip-a: #8DB0E6;
+    --chip-b: #E58873;
+    --chip-v: #AAC77F;
+    --chip-g: #DCBE62;
+    --chip-d: #B79CE0;
+    --chip-e: #E098B6;
+    --chip-ye: #A6A1B5;
+    --chip-zh: #F0A75E;
+    --chip-ink: #12101A;
+  }
+}
+
+:root[data-theme="dark"]{
+  --paper: #0E0C14;
+  --paper-raised: rgba(255,255,255,.06);
+  --card: rgb(255 255 255 / var(--card-alpha-dark));
+  --fill-tint: rgba(255,255,255,.07);
+  --ink: #F3F1F7;
+  --ink-soft: #C7C3D2;
+  --ink-faint: #8B87A0;
+  --line: rgba(255,255,255,.12);
+
+  --plum: #B7B2D6;
+  --accent-line: #E58873;
+  --tab-active: #FFFFFF;
+  --ring-track: rgba(255,255,255,.14);
+  --bar-idle: rgba(255,255,255,.12);
+  --spark-now: #EDEAF5;
+
+  --grad: linear-gradient(135deg, #58547A, #020202);
+  --grad-line: linear-gradient(90deg, #6B6592, #EDEAF5);
+  --page-bg: linear-gradient(180deg, #343147 0%, #020202 var(--bg-stop));
+
+  --card-shadow: 0 18px 40px -20px rgba(0,0,0,.6);
+  --tabbar-bg: rgba(38,35,52,.82);
+  --overlay-tint: rgba(2,2,2,.22);
+
+  --btn-add-bg: transparent;
+  --btn-add-ink: #F3F1F7;
+  --btn-add-border: rgba(255,255,255,.12);
+  --btn-add-shadow: none;
+
+  --state-alpha: var(--state-alpha-dark);
+  --state-go: linear-gradient(90deg, rgb(88 208 148 / 0%), rgb(88 208 148 / var(--state-alpha)));
+  --state-go-ink: #7FE0AE;
+  --state-full: linear-gradient(90deg, rgb(224 185 92 / 0%), rgb(224 185 92 / var(--state-alpha)));
+  --state-full-ink: #E9C871;
+
+  --chip-a: #8DB0E6;
+  --chip-b: #E58873;
+  --chip-v: #AAC77F;
+  --chip-g: #DCBE62;
+  --chip-d: #B79CE0;
+  --chip-e: #E098B6;
+  --chip-ye: #A6A1B5;
+  --chip-zh: #F0A75E;
+  --chip-ink: #12101A;
+}
+
+:root[data-theme="light"]{
+  --paper: #F4F4F6;
+  --paper-raised: #FFFFFF;
+  --card: rgb(255 255 255 / var(--card-alpha-light));
+  --fill-tint: rgba(52,49,71,.055);
+  --ink: #0C0B10;
+  --ink-soft: #5B5866;
+  --ink-faint: #9895A3;
+  --line: #E6E5EC;
+
+  --plum: #343147;
+  --accent-line: #C15C48;
+  --tab-active: #020202;
+  --ring-track: #EBEAF0;
+  --bar-idle: #E7E6EE;
+  --spark-now: #020202;
+
+  --grad: linear-gradient(135deg, #3D3A54, #020202);
+  --grad-line: linear-gradient(90deg, #020202, #4A4667);
+  --page-bg: var(--paper);
+
+  --card-shadow: 0 14px 34px -18px rgba(2,2,2,.28), 0 2px 10px -6px rgba(2,2,2,.10);
+  --tabbar-bg: rgba(255,255,255,.86);
+  --overlay-tint: rgba(2,2,2,.28);
+
+  --btn-add-bg: linear-gradient(135deg, #3D3A54, #020202);
+  --btn-add-ink: #FFFFFF;
+  --btn-add-border: transparent;
+  --btn-add-shadow: 0 10px 20px -10px rgba(2,2,2,.5);
+
+  --state-alpha: var(--state-alpha-light);
+  --state-go: linear-gradient(90deg, rgb(62 158 110 / 0%), rgb(62 158 110 / var(--state-alpha)));
+  --state-go-ink: #2C6E4C;
+  --state-full: linear-gradient(90deg, rgb(204 154 58 / 0%), rgb(204 154 58 / var(--state-alpha)));
+  --state-full-ink: #8A6516;
+
+  --chip-a: #5077B5;
+  --chip-b: #C15C48;
+  --chip-v: #75954B;
+  --chip-g: #C29C2E;
+  --chip-d: #8B5FBF;
+  --chip-e: #C15C8A;
+  --chip-ye: #7B7789;
+  --chip-zh: #D4761F;
+  --chip-ink: #FFFFFF;
+}
