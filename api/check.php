@@ -67,7 +67,7 @@ try {
 $expected = [
     'users' => null,
     'categories' => 8,
-    'products' => 40,
+    'products' => 42,
     'consumption' => null,
     'workout_types' => 7,
     'workouts' => null,
