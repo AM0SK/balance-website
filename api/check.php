@@ -89,6 +89,34 @@ foreach ($expected as $table => $minRows) {
     }
 }
 
+// --- Діагностика кодування -------------------------------------------------
+echo "\nКодування\n" . str_repeat('-', 46) . "\n";
+
+try {
+    foreach ($pdo->query("SHOW VARIABLES LIKE 'character_set_%'")->fetchAll() as $row) {
+        if (in_array($row['Variable_name'], ['character_set_client', 'character_set_connection', 'character_set_results', 'character_set_database'], true)) {
+            printf("  %-26s %s\n", $row['Variable_name'], $row['Value']);
+        }
+    }
+
+    $col = $pdo->query(
+        "SELECT CHARACTER_SET_NAME, COLLATION_NAME FROM information_schema.COLUMNS
+         WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'products' AND COLUMN_NAME = 'name'"
+    )->fetch();
+    printf("  %-26s %s / %s\n", 'products.name', $col['CHARACTER_SET_NAME'] ?? '?', $col['COLLATION_NAME'] ?? '?');
+
+    $sample = $pdo->query("SELECT id, name, HEX(name) AS hex FROM products WHERE id = 'a-potato'")->fetch();
+    if ($sample) {
+        echo "\n  Проба: products['a-potato'].name\n";
+        echo '    як прийшло:  ', $sample['name'], "\n";
+        echo '    байти (hex): ', substr($sample['hex'], 0, 40), "\n";
+        echo '    валідний UTF-8: ', mb_check_encoding($sample['name'], 'UTF-8') ? 'так' : 'НІ — ось причина', "\n";
+        echo "    очікується:  D09AD0B0D180D182D0BED0BFD0BBD18F (Картопля)\n";
+    }
+} catch (Throwable $e) {
+    echo '  не вдалося перевірити: ', $e->getMessage(), "\n";
+}
+
 echo "\n" . str_repeat('=', 46) . "\n";
 printf("%d пройдено, %d провалено\n", $ok, $bad);
 echo $bad === 0
