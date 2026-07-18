@@ -1,11 +1,9 @@
 import { useMemo } from 'react'
-import { CATEGORIES, PRODUCTS } from '@/data/catalog'
 import { Icon } from '@/components/ui/Icon'
 import { Ring } from '@/components/ui/Ring'
 import { buildCategoryViews, computeBudgets, dayTotals } from '@/lib/ration'
 import { dec, num, pct, relativeDays } from '@/lib/format'
 import { useStore } from '@/lib/store'
-import { WORKOUT_TYPES, MEASUREMENTS } from '@/data/catalog'
 
 const startOfWeek = (): string => {
   const d = new Date()
@@ -15,15 +13,25 @@ const startOfWeek = (): string => {
 }
 
 export function HomeScreen({ onOpenTab }: { onOpenTab: (tab: 'ration' | 'workout' | 'steps') => void }) {
-  const { profile, consumed, workouts, steps, measurements } = useStore()
+  const {
+    profile,
+    consumed,
+    workouts,
+    steps,
+    measurements,
+    products,
+    categories,
+    workoutTypes,
+    measurementKinds,
+  } = useStore()
 
-  const totals = useMemo(() => dayTotals(PRODUCTS, consumed), [consumed])
+  const totals = useMemo(() => dayTotals(products, consumed), [products, consumed])
   const filledCategories = useMemo(() => {
-    const budgets = computeBudgets(profile.dailyKcal, PRODUCTS, CATEGORIES)
-    return buildCategoryViews(PRODUCTS, CATEGORIES, consumed, budgets, profile.dailyKcal).filter(
+    const budgets = computeBudgets(profile.dailyKcal, products, categories)
+    return buildCategoryViews(products, categories, consumed, budgets, profile.dailyKcal).filter(
       (v) => v.startedCount > 0,
     ).length
-  }, [consumed, profile.dailyKcal])
+  }, [products, categories, consumed, profile.dailyKcal])
 
   const today = new Date().toISOString().slice(0, 10)
   const todaySteps = steps.find((s) => s.date === today)?.steps ?? 0
@@ -31,7 +39,7 @@ export function HomeScreen({ onOpenTab }: { onOpenTab: (tab: 'ration' | 'workout
   const weekStart = startOfWeek()
   const weekWorkouts = workouts.filter((w) => w.date >= weekStart)
   const lastWorkout = workouts[0]
-  const lastWorkoutName = WORKOUT_TYPES.find((t) => t.id === lastWorkout?.typeId)?.name
+  const lastWorkoutName = workoutTypes.find((t) => t.id === lastWorkout?.typeId)?.name
 
   const weights = measurements
     .filter((m) => m.key === 'weight')
@@ -62,7 +70,7 @@ export function HomeScreen({ onOpenTab }: { onOpenTab: (tab: 'ration' | 'workout
             {num(totals.kcal)} <small>/ {num(profile.dailyKcal)} ккал</small>
           </span>
           <span className="note">
-            {filledCategories} із {CATEGORIES.length} категорій заповнено
+            {filledCategories} із {categories.length} категорій заповнено
           </span>
         </span>
         <Ring percent={pct(totals.kcal, profile.dailyKcal)} />
@@ -164,7 +172,7 @@ export function HomeScreen({ onOpenTab }: { onOpenTab: (tab: 'ration' | 'workout
             const current = history[0]
             const prev = history[1]
             if (!current) return null
-            const meta = MEASUREMENTS.find((m) => m.key === key)
+            const meta = measurementKinds.find((m) => m.key === key)
             const delta = prev ? current.value - prev.value : 0
             return (
               <div className="measure-row" key={key} style={{ padding: '8px 0' }}>

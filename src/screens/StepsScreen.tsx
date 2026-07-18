@@ -3,6 +3,7 @@ import { Icon } from '@/components/ui/Icon'
 import { Modal } from '@/components/ui/Modal'
 import { dateShort, num, weekday } from '@/lib/format'
 import { useStore } from '@/lib/store'
+import { useSubmit } from '@/lib/useSubmit'
 
 export function StepsScreen() {
   const { profile, steps, addSteps } = useStore()
@@ -72,8 +73,8 @@ export function StepsScreen() {
       {adding && (
         <AddStepsModal
           onClose={() => setAdding(false)}
-          onSave={(date, value) => {
-            addSteps(date, value)
+          onSave={async (date, value) => {
+            await addSteps(date, value)
             setAdding(false)
           }}
         />
@@ -87,10 +88,11 @@ function AddStepsModal({
   onSave,
 }: {
   onClose: () => void
-  onSave: (date: string, steps: number) => void
+  onSave: (date: string, steps: number) => Promise<void>
 }) {
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10))
   const [value, setValue] = useState('')
+  const { saving, error, submit } = useSubmit()
 
   const parsed = Number(value)
   const valid = Number.isFinite(parsed) && parsed > 0
@@ -117,12 +119,18 @@ function AddStepsModal({
         />
       </div>
 
+      {error && <p className="form-error">{error}</p>}
+
       <div className="btn-row">
-        <button className="btn btn-outline" onClick={onClose}>
+        <button className="btn btn-outline" onClick={onClose} disabled={saving}>
           Скасувати
         </button>
-        <button className="btn btn-grad" disabled={!valid} onClick={() => onSave(date, parsed)}>
-          Зберегти
+        <button
+          className="btn btn-grad"
+          disabled={!valid || saving}
+          onClick={() => void submit(() => onSave(date, parsed))}
+        >
+          {saving ? 'Збереження…' : 'Зберегти'}
         </button>
       </div>
     </Modal>

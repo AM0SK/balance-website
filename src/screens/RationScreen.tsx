@@ -1,5 +1,4 @@
 import { useMemo, useState } from 'react'
-import { CATEGORIES, PRODUCTS } from '@/data/catalog'
 import { buildCategoryViews, computeBudgets, dayTotals } from '@/lib/ration'
 import { dec, num, pct } from '@/lib/format'
 import { useStore } from '@/lib/store'
@@ -7,18 +6,18 @@ import type { Product } from '@/lib/types'
 import { QuantityModal } from './QuantityModal'
 
 export function RationScreen() {
-  const { profile, consumed, setConsumed } = useStore()
+  const { profile, consumed, setConsumed, products, categories } = useStore()
   const [editing, setEditing] = useState<Product | null>(null)
 
   const budgets = useMemo(
-    () => computeBudgets(profile.dailyKcal, PRODUCTS, CATEGORIES),
-    [profile.dailyKcal],
+    () => computeBudgets(profile.dailyKcal, products, categories),
+    [profile.dailyKcal, products, categories],
   )
   const views = useMemo(
-    () => buildCategoryViews(PRODUCTS, CATEGORIES, consumed, budgets, profile.dailyKcal),
-    [consumed, budgets, profile.dailyKcal],
+    () => buildCategoryViews(products, categories, consumed, budgets, profile.dailyKcal),
+    [products, categories, consumed, budgets, profile.dailyKcal],
   )
-  const totals = useMemo(() => dayTotals(PRODUCTS, consumed), [consumed])
+  const totals = useMemo(() => dayTotals(products, consumed), [products, consumed])
 
   const editingRow = editing
     ? views.flatMap((v) => v.rows).find((r) => r.product.id === editing.id)
@@ -98,8 +97,8 @@ export function RationScreen() {
         <QuantityModal
           row={editingRow}
           onClose={() => setEditing(null)}
-          onConfirm={(units) => {
-            setConsumed(editing.id, units)
+          onConfirm={async (units) => {
+            await setConsumed(editing.id, units)
             setEditing(null)
           }}
         />

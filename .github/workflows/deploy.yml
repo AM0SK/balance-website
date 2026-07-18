@@ -1,0 +1,79 @@
+name: Деплой на Hostia
+
+# Тільки ручний запуск і push у main. Hostia — shared-хостинг без staging,
+# тож кожен деплой одразу бойовий.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  # Два одночасні деплої по FTP залишать сайт у змішаному стані.
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - run: npm ci
+
+      # Зламану збірку заливати нема сенсу — спершу перевірки.
+      - name: Типи
+        run: npx tsc -b --noEmit
+
+      - name: Тести раціону
+        run: npx vitest run
+
+      - name: Тести підпису Telegram
+        run: php api/tests/auth_test.php
+
+      - name: Збірка
+        run: npm run build
+
+      # Бекенд їде разом зі статикою: dist/ стає коренем сайту.
+      - name: Скласти api/ у dist/
+        run: |
+          mkdir -p dist/api
+          cp -r api/. dist/api/
+          # На сервер не мають потрапити ні дампи, ні тести.
+          rm -rf dist/api/tests dist/api/schema.sql dist/api/seed.sql dist/api/README.md
+          # config.php у репозиторії немає, але якщо збирати локально — він
+          # опиниться тут і перезапише бойовий. Прибираємо явно, а не
+          # покладаємось лише на exclude нижче.
+          rm -f dist/api/config.php
+          ls -la dist dist/api
+
+      - name: Переконатись, що секрети не в збірці
+        run: |
+          if [ -f dist/api/config.php ]; then
+            echo "config.php потрапив у збірку — деплой зупинено"; exit 1
+          fi
+          if ls dist/api/*.sql >/dev/null 2>&1; then
+            echo "SQL-дампи потрапили у збірку — деплой зупинено"; exit 1
+          fi
+          echo "збірка чиста"
+
+      - name: Заливка по FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./dist/
+          server-dir: ${{ secrets.FTP_SERVER_DIR }}
+          # config.php з паролем БД і токеном бота живе тільки на сервері
+          # і в репозиторії його немає — заливка не має його чіпати.
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            api/config.php

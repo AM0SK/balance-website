@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Modal } from '@/components/ui/Modal'
 import { dec, num } from '@/lib/format'
+import { useSubmit } from '@/lib/useSubmit'
 import type { ProductRow } from '@/lib/types'
 
 const QUICK = [25, 50, 75, 100]
@@ -13,10 +14,11 @@ export function QuantityModal({
 }: {
   row: ProductRow
   onClose: () => void
-  onConfirm: (units: number) => void
+  onConfirm: (units: number) => Promise<void>
 }) {
   const { product, limit, consumed } = row
   const [value, setValue] = useState(consumed)
+  const { saving, error, submit } = useSubmit()
   const isPieces = product.unit === 'pcs'
   const unitLabel = isPieces ? 'шт' : 'г'
   const step = isPieces ? 1 : 5
@@ -75,12 +77,18 @@ export function QuantityModal({
         })}
       </div>
 
+      {error && <p className="form-error">{error}</p>}
+
       <div className="btn-row">
-        <button className="btn btn-outline" onClick={onClose}>
+        <button className="btn btn-outline" onClick={onClose} disabled={saving}>
           Скасувати
         </button>
-        <button className="btn btn-grad" onClick={() => onConfirm(value)}>
-          Підтвердити
+        <button
+          className="btn btn-grad"
+          disabled={saving}
+          onClick={() => void submit(() => onConfirm(value))}
+        >
+          {saving ? 'Збереження…' : 'Підтвердити'}
         </button>
       </div>
     </Modal>

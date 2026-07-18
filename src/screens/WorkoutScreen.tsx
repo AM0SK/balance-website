@@ -1,12 +1,12 @@
 import { useMemo, useState } from 'react'
 import { Icon } from '@/components/ui/Icon'
 import { Modal } from '@/components/ui/Modal'
-import { WORKOUT_TYPES } from '@/data/catalog'
 import { dateWithWeekday, num } from '@/lib/format'
 import { useStore } from '@/lib/store'
+import { useSubmit } from '@/lib/useSubmit'
 
 export function WorkoutScreen() {
-  const { workouts, addWorkout } = useStore()
+  const { workouts, addWorkout, workoutTypes } = useStore()
   const [adding, setAdding] = useState(false)
 
   const avgBurned = useMemo(
@@ -62,7 +62,7 @@ export function WorkoutScreen() {
         {workouts.map((w) => (
           <div className="hrow" key={w.id}>
             <div>
-              <div className="hname">{WORKOUT_TYPES.find((t) => t.id === w.typeId)?.name}</div>
+              <div className="hname">{workoutTypes.find((t) => t.id === w.typeId)?.name}</div>
               <div className="hdate">{dateWithWeekday(w.date)}</div>
             </div>
             <div className="hval burn num">−{num(w.burnedKcal)} ккал</div>
@@ -72,9 +72,10 @@ export function WorkoutScreen() {
 
       {adding && (
         <AddWorkoutModal
+          types={workoutTypes}
           onClose={() => setAdding(false)}
-          onSave={(typeId, date, kcal) => {
-            addWorkout(typeId, date, kcal)
+          onSave={async (typeId, date, kcal) => {
+            await addWorkout(typeId, date, kcal)
             setAdding(false)
           }}
         />
@@ -84,25 +85,28 @@ export function WorkoutScreen() {
 }
 
 function AddWorkoutModal({
+  types,
   onClose,
   onSave,
 }: {
+  types: { id: string; name: string }[]
   onClose: () => void
-  onSave: (typeId: string, date: string, burnedKcal: number) => void
+  onSave: (typeId: string, date: string, burnedKcal: number) => Promise<void>
 }) {
-  const [typeId, setTypeId] = useState<string>(WORKOUT_TYPES[0].id)
+  const [typeId, setTypeId] = useState<string>(types[0]?.id ?? '')
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10))
   const [kcal, setKcal] = useState('')
+  const { saving, error, submit } = useSubmit()
 
   const parsed = Number(kcal)
-  const valid = Number.isFinite(parsed) && parsed > 0
+  const valid = Number.isFinite(parsed) && parsed > 0 && typeId !== ''
 
   return (
     <Modal title="Нове тренування" onClose={onClose}>
       <div className="field">
         <label htmlFor="w-type">Тип</label>
         <select id="w-type" value={typeId} onChange={(e) => setTypeId(e.target.value)}>
-          {WORKOUT_TYPES.map((t) => (
+          {types.map((t) => (
             <option key={t.id} value={t.id}>
               {t.name}
             </option>
@@ -128,12 +132,18 @@ function AddWorkoutModal({
         />
       </div>
 
+      {error && <p className="form-error">{error}</p>}
+
       <div className="btn-row">
-        <button className="btn btn-outline" onClick={onClose}>
+        <button className="btn btn-outline" onClick={onClose} disabled={saving}>
           Скасувати
         </button>
-        <button className="btn btn-grad" disabled={!valid} onClick={() => onSave(typeId, date, parsed)}>
-          Зберегти
+        <button
+          className="btn btn-grad"
+          disabled={!valid || saving}
+          onClick={() => void submit(() => onSave(typeId, date, parsed))}
+        >
+          {saving ? 'Збереження…' : 'Зберегти'}
         </button>
       </div>
     </Modal>

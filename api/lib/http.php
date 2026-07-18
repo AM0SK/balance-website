@@ -78,13 +78,29 @@ function requireNumber(array $body, string $field, float $min, float $max): floa
     return $value;
 }
 
+/**
+ * Довжина рядка в символах.
+ *
+ * mbstring на Hostia є, але покладатись на це не варто: без нього кожен запис
+ * із текстовим полем падав би з 500. Запасний варіант рахує символи UTF-8
+ * регуляркою — для перевірки довжини цього досить.
+ */
+function stringLength(string $value): int
+{
+    if (function_exists('mb_strlen')) {
+        return mb_strlen($value, 'UTF-8');
+    }
+
+    return (int) preg_match_all('/./us', $value);
+}
+
 function requireString(array $body, string $field, int $maxLength): string
 {
     $value = trim((string) ($body[$field] ?? ''));
     if ($value === '') {
         fail("Поле $field не може бути порожнім");
     }
-    if (mb_strlen($value) > $maxLength) {
+    if (stringLength($value) > $maxLength) {
         fail("Поле $field довше за $maxLength символів");
     }
 

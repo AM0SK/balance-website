@@ -1,10 +1,10 @@
 import { useMemo, useState } from 'react'
 import { Icon } from '@/components/ui/Icon'
 import { Modal } from '@/components/ui/Modal'
-import { CATEGORIES, MEASUREMENTS, PRODUCTS } from '@/data/catalog'
 import { computeBudgets, guaranteedProtein, PROTEIN_FLOOR } from '@/lib/ration'
 import { dec, num } from '@/lib/format'
 import { useStore } from '@/lib/store'
+import { useSubmit } from '@/lib/useSubmit'
 
 type Editing =
   | { kind: 'profile' }
@@ -13,7 +13,7 @@ type Editing =
   | null
 
 export function SettingsScreen({ onClose }: { onClose: () => void }) {
-  const { profile, measurements } = useStore()
+  const { profile, measurements, measurementKinds } = useStore()
   const [editing, setEditing] = useState<Editing>(null)
 
   const latest = (key: string) =>
@@ -78,7 +78,7 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
         <div>
           <div className="sectionlbl">Заміри тіла</div>
           <div className="measures-card">
-            {MEASUREMENTS.map((m) => {
+            {measurementKinds.map((m) => {
               const value = latest(m.key)
               return (
                 <button
@@ -138,6 +138,7 @@ function ProfileModal({ onClose }: { onClose: () => void }) {
   const { profile, updateProfile } = useStore()
   const [name, setName] = useState(profile.name)
   const [photoUrl, setPhotoUrl] = useState(profile.photoUrl ?? '')
+  const { saving, error, submit } = useSubmit()
 
   return (
     <Modal title="Профіль" onClose={onClose}>
@@ -154,19 +155,23 @@ function ProfileModal({ onClose }: { onClose: () => void }) {
           onChange={(e) => setPhotoUrl(e.target.value)}
         />
       </div>
+      {error && <p className="form-error">{error}</p>}
+
       <div className="btn-row">
-        <button className="btn btn-outline" onClick={onClose}>
+        <button className="btn btn-outline" onClick={onClose} disabled={saving}>
           Скасувати
         </button>
         <button
           className="btn btn-grad"
-          disabled={name.trim().length === 0}
-          onClick={() => {
-            updateProfile({ name: name.trim(), photoUrl: photoUrl.trim() || null })
-            onClose()
-          }}
+          disabled={name.trim().length === 0 || saving}
+          onClick={() =>
+            void submit(async () => {
+              await updateProfile({ name: name.trim(), photoUrl: photoUrl.trim() || null })
+              onClose()
+            })
+          }
         >
-          Зберегти
+          {saving ? 'Збереження…' : 'Зберегти'}
         </button>
       </div>
     </Modal>
@@ -174,8 +179,9 @@ function ProfileModal({ onClose }: { onClose: () => void }) {
 }
 
 function KcalModal({ onClose }: { onClose: () => void }) {
-  const { profile, updateProfile } = useStore()
+  const { profile, updateProfile, products, categories } = useStore()
   const [value, setValue] = useState(String(profile.dailyKcal))
+  const { saving, error, submit } = useSubmit()
 
   const parsed = Number(value)
   const valid = Number.isFinite(parsed) && parsed >= 800 && parsed <= 5000
@@ -183,8 +189,8 @@ function KcalModal({ onClose }: { onClose: () => void }) {
   // Показуємо, що станеться з гарантованим білком за цього ліміту.
   const protein = useMemo(() => {
     if (!valid) return null
-    return guaranteedProtein(computeBudgets(parsed, PRODUCTS, CATEGORIES), PRODUCTS, CATEGORIES)
-  }, [parsed, valid])
+    return guaranteedProtein(computeBudgets(parsed, products, categories), products, categories)
+  }, [parsed, valid, products, categories])
 
   return (
     <Modal title="Денний ліміт калорій" onClose={onClose}>
@@ -208,19 +214,23 @@ function KcalModal({ onClose }: { onClose: () => void }) {
         </div>
       )}
 
+      {error && <p className="form-error">{error}</p>}
+
       <div className="btn-row">
-        <button className="btn btn-outline" onClick={onClose}>
+        <button className="btn btn-outline" onClick={onClose} disabled={saving}>
           Скасувати
         </button>
         <button
           className="btn btn-grad"
-          disabled={!valid}
-          onClick={() => {
-            updateProfile({ dailyKcal: parsed })
-            onClose()
-          }}
+          disabled={!valid || saving}
+          onClick={() =>
+            void submit(async () => {
+              await updateProfile({ dailyKcal: parsed })
+              onClose()
+            })
+          }
         >
-          Зберегти
+          {saving ? 'Збереження…' : 'Зберегти'}
         </button>
       </div>
     </Modal>
@@ -228,10 +238,11 @@ function KcalModal({ onClose }: { onClose: () => void }) {
 }
 
 function MeasureModal({ measureKey, onClose }: { measureKey: string; onClose: () => void }) {
-  const { addMeasurement } = useStore()
-  const meta = MEASUREMENTS.find((m) => m.key === measureKey)
+  const { addMeasurement, measurementKinds } = useStore()
+  const meta = measurementKinds.find((m) => m.key === measureKey)
   const [value, setValue] = useState('')
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10))
+  const { saving, error, submit } = useSubmit()
 
   const parsed = Number(value.replace(',', '.'))
   const valid = Number.isFinite(parsed) && parsed > 0
@@ -254,19 +265,23 @@ function MeasureModal({ measureKey, onClose }: { measureKey: string; onClose: ()
           onChange={(e) => setValue(e.target.value)}
         />
       </div>
+      {error && <p className="form-error">{error}</p>}
+
       <div className="btn-row">
-        <button className="btn btn-outline" onClick={onClose}>
+        <button className="btn btn-outline" onClick={onClose} disabled={saving}>
           Скасувати
         </button>
         <button
           className="btn btn-grad"
-          disabled={!valid}
-          onClick={() => {
-            addMeasurement(measureKey, date, parsed)
-            onClose()
-          }}
+          disabled={!valid || saving}
+          onClick={() =>
+            void submit(async () => {
+              await addMeasurement(measureKey, date, parsed)
+              onClose()
+            })
+          }
         >
-          Зберегти
+          {saving ? 'Збереження…' : 'Зберегти'}
         </button>
       </div>
     </Modal>

@@ -1,4 +1,14 @@
-import { createContext, useContext, useMemo, useState, type ReactNode } from 'react'
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from 'react'
+import { ApiError, api, type Bootstrap } from './api'
+import { CATEGORIES, MEASUREMENTS, PRODUCTS, WORKOUT_TYPES } from '@/data/catalog'
 import {
   MOCK_CONSUMED,
   MOCK_MEASUREMENTS,
@@ -6,80 +16,149 @@ import {
   MOCK_STEPS,
   MOCK_WORKOUTS,
 } from '@/data/mockState'
-import type { Consumed, Measurement, StepsEntry, UserProfile, Workout } from './types'
+import type { UserProfile } from './types'
 
-/**
- * Стан застосунку на час вёрстки. Тримається в пам'яті; коли з'явиться API,
- * ці ж сигнатури стануть викликами до бекенду, а компоненти не зміняться.
- */
-interface Store {
-  profile: UserProfile
-  consumed: Consumed
-  workouts: Workout[]
-  steps: StepsEntry[]
-  measurements: Measurement[]
+/** 'mock' означає, що бекенд недоступний і дані несправжні — це видно в інтерфейсі. */
+type Status = 'loading' | 'ready' | 'mock' | 'error'
 
-  setConsumed: (productId: string, units: number) => void
-  updateProfile: (patch: Partial<UserProfile>) => void
-  addWorkout: (typeId: string, date: string, burnedKcal: number) => void
-  addSteps: (date: string, steps: number) => void
-  addMeasurement: (key: string, date: string, value: number) => void
+interface Store extends Bootstrap {
+  status: Status
+  errorMessage: string | null
+  retry: () => void
+
+  setConsumed: (productId: string, units: number) => Promise<void>
+  updateProfile: (patch: Partial<UserProfile>) => Promise<void>
+  addWorkout: (typeId: string, date: string, burnedKcal: number) => Promise<void>
+  addSteps: (date: string, steps: number) => Promise<void>
+  addMeasurement: (key: string, date: string, value: number) => Promise<void>
 }
 
 const StoreContext = createContext<Store | null>(null)
 
+const today = (): string => new Date().toISOString().slice(0, 10)
+
+/** Дані-заглушки на випадок, коли бекенду ще немає. Форма — та сама, що в API. */
+const mockBootstrap = (): Bootstrap => ({
+  profile: MOCK_PROFILE,
+  categories: CATEGORIES,
+  products: PRODUCTS,
+  workoutTypes: WORKOUT_TYPES.map((t) => ({ id: t.id, name: t.name })),
+  measurementKinds: MEASUREMENTS.map((m) => ({ key: m.key, name: m.name, unit: m.unit })),
+  day: today(),
+  consumed: MOCK_CONSUMED,
+  workouts: MOCK_WORKOUTS,
+  steps: MOCK_STEPS,
+  measurements: MOCK_MEASUREMENTS,
+})
+
 const uid = (): string => Math.random().toString(36).slice(2, 10)
 
 export function StoreProvider({ children }: { children: ReactNode }) {
-  const [profile, setProfile] = useState<UserProfile>(MOCK_PROFILE)
-  const [consumed, setConsumedState] = useState<Consumed>(MOCK_CONSUMED)
-  const [workouts, setWorkouts] = useState<Workout[]>(MOCK_WORKOUTS)
-  const [steps, setSteps] = useState<StepsEntry[]>(MOCK_STEPS)
-  const [measurements, setMeasurements] = useState<Measurement[]>(MOCK_MEASUREMENTS)
+  const [status, setStatus] = useState<Status>('loading')
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [data, setData] = useState<Bootstrap>(mockBootstrap)
+
+  const load = useCallback(async () => {
+    setStatus('loading')
+    setErrorMessage(null)
+    try {
+      setData(await api.bootstrap())
+      setStatus('ready')
+    } catch (e) {
+      const message = e instanceof ApiError ? e.message : 'Невідома помилка'
+      /*
+       * У розробці бекенду може ще не бути — працюємо на заглушках, щоб не
+       * блокувати вёрстку. На бойовому складання це неприпустимо: показуємо
+       * помилку, інакше користувач вирішить, що зберіг дані, а їх нема.
+       */
+      if (import.meta.env.DEV) {
+        setData(mockBootstrap())
+        setStatus('mock')
+        setErrorMessage(message)
+      } else {
+        setStatus('error')
+        setErrorMessage(message)
+      }
+    }
+  }, [])
+
+  useEffect(() => {
+    void load()
+  }, [load])
+
+  const isMock = status === 'mock'
 
   const value = useMemo<Store>(
     () => ({
-      profile,
-      consumed,
-      workouts,
-      steps,
-      measurements,
+      ...data,
+      status,
+      errorMessage,
+      retry: () => void load(),
 
-      setConsumed: (productId, units) =>
-        setConsumedState((prev) => {
-          const next = { ...prev }
-          if (units <= 0) delete next[productId]
-          else next[productId] = units
-          return next
-        }),
+      setConsumed: async (productId, units) => {
+        if (isMock) {
+          setData((prev) => {
+            const consumed = { ...prev.consumed }
+            if (units <= 0) delete consumed[productId]
+            else consumed[productId] = units
+            return { ...prev, consumed }
+          })
+          return
+        }
+        const { consumed } = await api.setConsumption(productId, units, data.day)
+        setData((prev) => ({ ...prev, consumed }))
+      },
 
-      updateProfile: (patch) => setProfile((prev) => ({ ...prev, ...patch })),
+      updateProfile: async (patch) => {
+        if (!isMock) await api.updateProfile(patch)
+        setData((prev) => ({ ...prev, profile: { ...prev.profile, ...patch } }))
+      },
 
-      addWorkout: (typeId, date, burnedKcal) =>
-        setWorkouts((prev) =>
-          [{ id: uid(), typeId, date, burnedKcal }, ...prev].sort((a, b) =>
-            b.date.localeCompare(a.date),
-          ),
-        ),
+      addWorkout: async (typeId, date, burnedKcal) => {
+        if (isMock) {
+          setData((prev) => ({
+            ...prev,
+            workouts: [{ id: uid(), typeId, date, burnedKcal }, ...prev.workouts].sort((a, b) =>
+              b.date.localeCompare(a.date),
+            ),
+          }))
+          return
+        }
+        const { workouts } = await api.addWorkout(typeId, date, burnedKcal)
+        setData((prev) => ({ ...prev, workouts }))
+      },
 
-      // Кроки за день перезаписуються, а не додаються другим записом.
-      addSteps: (date, value) =>
-        setSteps((prev) => {
-          const rest = prev.filter((s) => s.date !== date)
-          return [{ id: uid(), date, steps: value }, ...rest].sort((a, b) =>
-            b.date.localeCompare(a.date),
-          )
-        }),
+      addSteps: async (date, value) => {
+        if (isMock) {
+          setData((prev) => ({
+            ...prev,
+            steps: [
+              { id: uid(), date, steps: value },
+              ...prev.steps.filter((s) => s.date !== date),
+            ].sort((a, b) => b.date.localeCompare(a.date)),
+          }))
+          return
+        }
+        const { steps } = await api.setSteps(date, value)
+        setData((prev) => ({ ...prev, steps }))
+      },
 
-      addMeasurement: (key, date, value) =>
-        setMeasurements((prev) => {
-          const rest = prev.filter((m) => !(m.key === key && m.date === date))
-          return [{ id: uid(), key, date, value }, ...rest].sort((a, b) =>
-            b.date.localeCompare(a.date),
-          )
-        }),
+      addMeasurement: async (key, date, value) => {
+        if (isMock) {
+          setData((prev) => ({
+            ...prev,
+            measurements: [
+              { id: uid(), key, date, value },
+              ...prev.measurements.filter((m) => !(m.key === key && m.date === date)),
+            ].sort((a, b) => b.date.localeCompare(a.date)),
+          }))
+          return
+        }
+        const { measurements } = await api.setMeasurement(key, date, value)
+        setData((prev) => ({ ...prev, measurements }))
+      },
     }),
-    [profile, consumed, workouts, steps, measurements],
+    [data, status, errorMessage, isMock, load],
   )
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>
