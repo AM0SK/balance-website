@@ -12,13 +12,30 @@ function connectDatabase(array $db): PDO
     $dsn = $db['dsn']
         ?? sprintf('mysql:host=%s;dbname=%s;charset=utf8mb4', $db['host'], $db['name']);
 
-    return new PDO($dsn, $db['user'] ?? null, $db['password'] ?? null, [
+    $pdo = new PDO($dsn, $db['user'] ?? null, $db['password'] ?? null, [
         PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         // Справжні підготовлені запити, а не емуляція: інакше числа приїжджають
         // рядками і типи в JSON пливуть.
         PDO::ATTR_EMULATE_PREPARES   => false,
     ]);
+
+    /*
+     * charset у DSN тут недостатньо. На Hostia сервер має init_connect зі
+     * `SET NAMES cp1251` — типова legacy-настройка shared-хостингів. Вона
+     * виконується ПІСЛЯ рукостискання і перебиває кодування з DSN.
+     *
+     * Наслідок був такий: у таблицях лежить коректний utf8mb4, але MySQL
+     * конвертував його в cp1251 на виході, PHP отримував невалідний UTF-8,
+     * json_encode повертав false — і застосунок бачив порожню відповідь.
+     *
+     * Явний SET NAMES виконується останнім і виграє.
+     */
+    if (!str_starts_with($dsn, 'sqlite:')) {
+        $pdo->exec('SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci');
+    }
+
+    return $pdo;
 }
 
 function sendJson(mixed $data, int $status = 200): never

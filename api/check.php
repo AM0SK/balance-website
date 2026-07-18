@@ -110,8 +110,13 @@ try {
         echo "\n  Проба: products['a-potato'].name\n";
         echo '    як прийшло:  ', $sample['name'], "\n";
         echo '    байти (hex): ', substr($sample['hex'], 0, 40), "\n";
-        echo '    валідний UTF-8: ', mb_check_encoding($sample['name'], 'UTF-8') ? 'так' : 'НІ — ось причина', "\n";
+        $valid = mb_check_encoding($sample['name'], 'UTF-8');
+        echo '    валідний UTF-8: ', $valid ? 'так' : 'НІ', "\n";
         echo "    очікується:  D09AD0B0D180D182D0BED0BFD0BBD18F (Картопля)\n";
+        if (!$valid) {
+            echo "\n    Байти в таблиці правильні, псується читання.\n";
+            echo "    Перевірте, що connectDatabase виконує SET NAMES utf8mb4.\n";
+        }
     }
 } catch (Throwable $e) {
     echo '  не вдалося перевірити: ', $e->getMessage(), "\n";
