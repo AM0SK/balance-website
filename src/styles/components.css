@@ -77,9 +77,22 @@
   font-weight: var(--t-h1-weight);
   letter-spacing: -0.02em;
 }
-/* Тільки Налаштування: заголовок по центру. */
-.pagehead-center {
-  justify-content: center;
+/*
+ * Великий показник і кнопка «+ Додати» в одному рядку.
+ * baseline вирівнює кнопку по самому числу, а не по всьому блоку —
+ * інакше вона висне навпроти дрібної мітки над ним.
+ */
+.statrow {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+.statrow .statbig {
+  margin-bottom: 14px;
+}
+.statrow .btn-add {
+  margin-bottom: 18px;
 }
 .btn-add {
   display: flex;

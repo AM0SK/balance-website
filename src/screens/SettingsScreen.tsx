@@ -29,7 +29,7 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
     <>
       <div className="stack">
         <header className="topbar">
-          <div className="wordmark">Balance</div>
+          <h1 className="pagetitle">Налаштування</h1>
           <div className="right">
             <button
               className="gearbtn gearbtn-close"
@@ -40,11 +40,6 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
             </button>
           </div>
         </header>
-
-        {/* Заголовок по центру — тільки на цьому екрані. */}
-        <div className="pagehead pagehead-center">
-          <h1 className="pagetitle">Налаштування</h1>
-        </div>
 
         <div>
           <div className="avatar-wrap">

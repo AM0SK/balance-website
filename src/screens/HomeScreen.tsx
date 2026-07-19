@@ -56,10 +56,6 @@ export function HomeScreen({ onOpenTab }: { onOpenTab: (tab: 'ration' | 'workout
 
   return (
     <>
-      <div className="pagehead">
-        <h1 className="pagetitle">Головна</h1>
-      </div>
-
       <button className="card" onClick={() => onOpenTab('ration')}>
         <span className="meta">
           <span className="icon-row">
@@ -79,7 +75,7 @@ export function HomeScreen({ onOpenTab }: { onOpenTab: (tab: 'ration' | 'workout
       <button className="card" onClick={() => onOpenTab('steps')}>
         <span className="meta">
           <span className="icon-row">
-            <Icon name="stepsDetailed" />
+            <Icon name="steps" />
             кроки
           </span>
           <span className="headline num">
@@ -101,7 +97,7 @@ export function HomeScreen({ onOpenTab }: { onOpenTab: (tab: 'ration' | 'workout
       <button className="card" onClick={() => onOpenTab('workout')}>
         <span className="meta">
           <span className="icon-row">
-            <Icon name="dumbbell" />
+            <Icon name="workout" />
             тренування
           </span>
           <span className="headline num">

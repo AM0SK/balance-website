@@ -8,6 +8,13 @@ import { StepsScreen } from '@/screens/StepsScreen'
 import { WorkoutScreen } from '@/screens/WorkoutScreen'
 import { useStore } from '@/lib/store'
 
+const TITLES: Record<TabKey, string> = {
+  home: 'Головна',
+  ration: 'Раціон',
+  workout: 'Вправи',
+  steps: 'Кроки',
+}
+
 export function App() {
   const [tab, setTab] = useState<TabKey>('home')
   const [settingsOpen, setSettingsOpen] = useState(false)
@@ -57,7 +64,7 @@ export function App() {
 
       {/* Шапка їде разом із контентом — вона всередині зони прокрутки. */}
       <main className="stack">
-        <TopBar onOpenSettings={() => setSettingsOpen(true)} />
+        <TopBar title={TITLES[tab]} onOpenSettings={() => setSettingsOpen(true)} />
         {tab === 'home' && <HomeScreen onOpenTab={setTab} />}
         {tab === 'ration' && <RationScreen />}
         {tab === 'workout' && <WorkoutScreen />}

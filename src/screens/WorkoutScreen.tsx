@@ -22,19 +22,18 @@ export function WorkoutScreen() {
 
   return (
     <>
-      <div className="pagehead">
-        <h1 className="pagetitle">Вправи</h1>
+      {/* Кнопка в один рівень із числом, заголовок — у шапці. */}
+      <div className="statrow">
+        <div className="statbig">
+          <span className="lbl">спалено за тренування, в сер.</span>
+          <span className="val num">
+            {num(avgBurned)} <u>ккал</u>
+          </span>
+        </div>
         <button className="btn-add" onClick={() => setAdding(true)}>
           <Icon name="plus" strokeWidth={2.6} />
           Додати
         </button>
-      </div>
-
-      <div className="statbig">
-        <span className="lbl">спалено за тренування, в сер.</span>
-        <span className="val num">
-          {num(avgBurned)} <u>ккал</u>
-        </span>
       </div>
 
       {chart.length > 0 && (

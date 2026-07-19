@@ -25,10 +25,6 @@ export function RationScreen() {
 
   return (
     <>
-      <div className="pagehead">
-        <h1 className="pagetitle">Раціон</h1>
-      </div>
-
       {/* Білок — лічильник без цілі, як у реальному застосунку. */}
       <div className="statbig">
         <span className="lbl">Білки</span>

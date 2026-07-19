@@ -92,7 +92,14 @@
 
   --grad: linear-gradient(135deg, #3D3A54, #020202);          /* заливка кнопок, аватар */
   --grad-line: linear-gradient(90deg, #020202, #4A4667);      /* шкали, слайдер: темне ліворуч */
-  --page-bg: var(--paper);
+
+  /* Фон світлої теми — теж градієнт, дзеркально до темної:
+     згори легкий відтінок сливового #343147, знизу майже білий.
+     Значення підібрані клієнтом у предпоказі. */
+  --page-grad-top: #EBE9F2;
+  --page-grad-bottom: #FAFAFA;
+  --page-grad-stop: 40%;
+  --page-bg: linear-gradient(180deg, var(--page-grad-top) 0%, var(--page-grad-bottom) var(--page-grad-stop));
 
   --card-shadow: 0 14px 34px -18px rgba(2,2,2,.28), 0 2px 10px -6px rgba(2,2,2,.10);
   --btn-shadow: 0 10px 20px -10px rgba(2,2,2,.5);
@@ -233,7 +240,10 @@
 
   --grad: linear-gradient(135deg, #3D3A54, #020202);
   --grad-line: linear-gradient(90deg, #020202, #4A4667);
-  --page-bg: var(--paper);
+  --page-grad-top: #EBE9F2;
+  --page-grad-bottom: #FAFAFA;
+  --page-grad-stop: 40%;
+  --page-bg: linear-gradient(180deg, var(--page-grad-top) 0%, var(--page-grad-bottom) var(--page-grad-stop));
 
   --card-shadow: 0 14px 34px -18px rgba(2,2,2,.28), 0 2px 10px -6px rgba(2,2,2,.10);
   --tabbar-bg: rgba(255,255,255,.86);
