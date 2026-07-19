@@ -208,7 +208,7 @@ function ResetModal({ onClose }: { onClose: () => void }) {
   const { saving, error, submit } = useSubmit()
 
   return (
-    <Modal title="Дійсно бажаєте скинути прогрес профілю?" onClose={onClose}>
+    <Modal title={'Дійсно бажаєте скинути\nпрогрес профілю?'} onClose={onClose}>
       {(close) => (
         <>
           <p className="modal-hint spaced">

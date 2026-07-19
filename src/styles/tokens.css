@@ -50,6 +50,33 @@
   --state-alpha-light: 20%;
   --state-alpha-dark: 15%;
 
+  /* ---------- МОДАЛКА В ТЕМНІЙ ТЕМІ: КРУТИЛКИ ----------
+     Правити ТІЛЬКИ тут. Нижче ці значення підставляються в обидва
+     блоки темної теми (системна + ручний перемикач), тому саму
+     розкладку чіпати не треба — інакше довелось би правити двічі.
+     Світлої теми ці змінні не стосуються.
+
+     Колір задається трійкою каналів без коми (формат rgb(R G B / A)),
+     прозорість — окремо, щоб їх можна було крутити незалежно. */
+
+  /* Картка модалки. Майже непрозора — картка читається як суцільна
+     поверхня, а не як скло: підібрано клієнтом. */
+  --dark-modal-sheet-rgb: 18 17 23;      /* колір підложки картки */
+  --dark-modal-sheet-alpha: 90%;         /* її прозорість */
+  --dark-modal-sheet-blur: 5px;          /* розмиття під карткою */
+
+  /* Тло (підложка) навколо картки. Затемнення вимкнене (alpha 0):
+     екран під модалкою відділяє саме розмиття, без темної плівки. */
+  --dark-modal-overlay-rgb: 2 2 2;       /* колір затемнення */
+  --dark-modal-overlay-alpha: 0%;        /* його прозорість */
+  --dark-modal-overlay-blur: 10px;       /* розмиття тла модалки */
+
+  /* Світла тема — значення, що діють зараз; лишаємо як є. */
+  --modal-sheet-bg: rgb(255 255 255 / var(--card-alpha-light));
+  --modal-sheet-blur: var(--card-blur);
+  --modal-overlay-bg: rgba(2, 2, 2, 0.28);
+  --modal-overlay-blur: var(--overlay-blur);
+
   /* ---------- КОЛІР КАТЕГОРІЙ ----------
      Відтінки взяті з реального застосунку (А синій, Б червоний, В зелений,
      Г жовтий, Д фіолетовий, Е рожевий, Є сірий, Ж помаранчевий)
@@ -147,6 +174,12 @@
     --tabbar-bg: rgba(38,35,52,.82);
     --overlay-tint: rgba(2,2,2,.22);
 
+    /* Розкладка крутилок модалки — значення правити вгорі, у :root. */
+    --modal-sheet-bg: rgb(var(--dark-modal-sheet-rgb) / var(--dark-modal-sheet-alpha));
+    --modal-sheet-blur: var(--dark-modal-sheet-blur);
+    --modal-overlay-bg: rgb(var(--dark-modal-overlay-rgb) / var(--dark-modal-overlay-alpha));
+    --modal-overlay-blur: var(--dark-modal-overlay-blur);
+
     --btn-add-bg: transparent;
     --btn-add-ink: #F3F1F7;
     --btn-add-border: rgba(255,255,255,.12);
@@ -194,6 +227,12 @@
   --card-shadow: 0 18px 40px -20px rgba(0,0,0,.6);
   --tabbar-bg: rgba(38,35,52,.82);
   --overlay-tint: rgba(2,2,2,.22);
+
+  /* Розкладка крутилок модалки — значення правити вгорі, у :root. */
+  --modal-sheet-bg: rgb(var(--dark-modal-sheet-rgb) / var(--dark-modal-sheet-alpha));
+  --modal-sheet-blur: var(--dark-modal-sheet-blur);
+  --modal-overlay-bg: rgb(var(--dark-modal-overlay-rgb) / var(--dark-modal-overlay-alpha));
+  --modal-overlay-blur: var(--dark-modal-overlay-blur);
 
   --btn-add-bg: transparent;
   --btn-add-ink: #F3F1F7;
@@ -244,6 +283,13 @@
   --card-shadow: 0 14px 34px -18px rgba(2,2,2,.28), 0 2px 10px -6px rgba(2,2,2,.10);
   --tabbar-bg: rgba(255,255,255,.86);
   --overlay-tint: rgba(2,2,2,.28);
+
+  /* Повертаємо світлі значення: якщо система темна, а користувач обрав
+     «Світла», блок @media вище вже підставив би темні крутилки. */
+  --modal-sheet-bg: rgb(255 255 255 / var(--card-alpha-light));
+  --modal-sheet-blur: var(--card-blur);
+  --modal-overlay-bg: rgba(2, 2, 2, 0.28);
+  --modal-overlay-blur: var(--overlay-blur);
 
   --btn-add-bg: linear-gradient(135deg, #3D3A54, #020202);
   --btn-add-ink: #FFFFFF;

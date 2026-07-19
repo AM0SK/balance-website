@@ -811,10 +811,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--overlay-tint);
+  background: var(--modal-overlay-bg);
   padding: 0 18px;
-  -webkit-backdrop-filter: blur(var(--overlay-blur));
-  backdrop-filter: blur(var(--overlay-blur));
+  -webkit-backdrop-filter: blur(var(--modal-overlay-blur));
+  backdrop-filter: blur(var(--modal-overlay-blur));
   opacity: 1;
   transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -824,7 +824,15 @@
      сторінка під нею здається "зависла": не скролиться, не натискається. */
   pointer-events: none;
 }
+/*
+ * Власні фон і розмиття, а не спільні з картками (правило поверхонь
+ * вище): модалку треба крутити окремо. Це правило йде ПІСЛЯ спільного,
+ * тому за однакової специфічності перемагає воно.
+ */
 .modal-sheet {
+  background: var(--modal-sheet-bg);
+  -webkit-backdrop-filter: blur(var(--modal-sheet-blur));
+  backdrop-filter: blur(var(--modal-sheet-blur));
   width: 100%;
   max-width: 420px;
   border-radius: var(--radius-card);
@@ -886,6 +894,10 @@
   text-align: center;
   margin: 2px 0 12px;
   padding: 0 28px;
+  /* Перенос рядка в заголовку задається \n у самому тексті (title
+     лишається рядком, бо йде ще й в aria-label). Звичайні пробіли
+     при цьому не зберігаються — на відміну від pre-wrap. */
+  white-space: pre-line;
 }
 .modal-hint {
   text-align: center;
