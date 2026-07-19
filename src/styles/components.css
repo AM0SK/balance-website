@@ -757,6 +757,8 @@
   font-size: var(--t-tab-size);
   font-weight: var(--t-tab-weight);
   padding: 4px 10px;
+  /* Іконка (stroke: currentColor) і підпис міняють колір разом при перемиканні вкладки. */
+  transition: color 0.2s ease;
 }
 .tab svg {
   width: 18px;
@@ -767,6 +769,13 @@
 }
 
 /* ---------- модалка ---------- */
+/*
+ * Поява/зникнення модалки: 500ms, підложка й картка анімуються окремо.
+ * Підложка — лише opacity: якби вона теж масштабувалась разом із карткою
+ * (спільна transform-анімація на батьківському .modal-overlay), розмите
+ * тло під час скейлу «плавало» б і сіпалось по краях екрана. Тому
+ * transform живе тільки на .modal-sheet, а не на його контейнері.
+ */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -778,6 +787,11 @@
   padding: 0 18px;
   -webkit-backdrop-filter: blur(var(--overlay-blur));
   backdrop-filter: blur(var(--overlay-blur));
+  opacity: 1;
+  transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.modal-overlay.is-closing {
+  opacity: 0;
 }
 .modal-sheet {
   width: 100%;
@@ -786,6 +800,36 @@
   padding: 22px 18px 18px;
   position: relative;
   max-height: 88dvh;
+  opacity: 1;
+  transform: scale(1);
+  transition:
+    opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.modal-sheet.is-closing {
+  opacity: 0;
+  transform: scale(0.9);
+}
+@keyframes modal-sheet-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+/* Не .is-closing і щойно змонтована — тобто вхід. Анімація «з нуля»,
+   а не transition: елемент і так уже намальований в кінцевому стані
+   на першому кадрі (той самий випадок, що й з AnimatedBar). */
+.modal-sheet:not(.is-closing) {
+  animation: modal-sheet-in 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes modal-overlay-in {
+  from {
+    opacity: 0;
+  }
+}
+.modal-overlay:not(.is-closing) {
+  animation: modal-overlay-in 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
   overflow-y: auto;
 }
 .modal-close {

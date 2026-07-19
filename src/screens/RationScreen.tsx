@@ -96,10 +96,7 @@ export function RationScreen() {
         <QuantityModal
           row={editingRow}
           onClose={() => setEditing(null)}
-          onConfirm={async (units) => {
-            await setConsumed(editing.id, units)
-            setEditing(null)
-          }}
+          onConfirm={(units) => setConsumed(editing.id, units)}
         />
       )}
     </>

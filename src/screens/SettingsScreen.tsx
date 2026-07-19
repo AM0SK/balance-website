@@ -150,45 +150,49 @@ function KcalModal({ onClose }: { onClose: () => void }) {
 
   return (
     <Modal title="Денний ліміт калорій" onClose={onClose}>
-      <div className="field">
-        <label htmlFor="k-value">Ккал на день</label>
-        <input
-          id="k-value"
-          type="number"
-          inputMode="numeric"
-          min={800}
-          max={5000}
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-        />
-      </div>
+      {(close) => (
+        <>
+          <div className="field">
+            <label htmlFor="k-value">Ккал на день</label>
+            <input
+              id="k-value"
+              type="number"
+              inputMode="numeric"
+              min={800}
+              max={5000}
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+            />
+          </div>
 
-      {protein !== null && (
-        <div className="modal-pill">
-          Гарантований мінімум білка: {dec(protein)} г
-          {protein < PROTEIN_FLOOR && ' — нижче цільових 50 г'}
-        </div>
+          {protein !== null && (
+            <div className="modal-pill">
+              Гарантований мінімум білка: {dec(protein)} г
+              {protein < PROTEIN_FLOOR && ' — нижче цільових 50 г'}
+            </div>
+          )}
+
+          {error && <p className="form-error">{error}</p>}
+
+          <div className="btn-row">
+            <button className="btn btn-outline" onClick={close} disabled={saving}>
+              Скасувати
+            </button>
+            <button
+              className="btn btn-grad"
+              disabled={!valid || saving}
+              onClick={() =>
+                void submit(async () => {
+                  await updateProfile({ dailyKcal: parsed })
+                  close()
+                })
+              }
+            >
+              {saving ? 'Збереження…' : 'Зберегти'}
+            </button>
+          </div>
+        </>
       )}
-
-      {error && <p className="form-error">{error}</p>}
-
-      <div className="btn-row">
-        <button className="btn btn-outline" onClick={onClose} disabled={saving}>
-          Скасувати
-        </button>
-        <button
-          className="btn btn-grad"
-          disabled={!valid || saving}
-          onClick={() =>
-            void submit(async () => {
-              await updateProfile({ dailyKcal: parsed })
-              onClose()
-            })
-          }
-        >
-          {saving ? 'Збереження…' : 'Зберегти'}
-        </button>
-      </div>
     </Modal>
   )
 }
@@ -205,42 +209,51 @@ function MeasureModal({ measureKey, onClose }: { measureKey: string; onClose: ()
 
   return (
     <Modal title={meta?.name ?? 'Замір'} onClose={onClose}>
-      <div className="field">
-        <label htmlFor="m-date">Дата</label>
-        <input id="m-date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-      </div>
-      <div className="field">
-        <label htmlFor="m-value">Значення, {meta?.unit}</label>
-        <input
-          id="m-value"
-          type="number"
-          inputMode="decimal"
-          step="0.1"
-          min={0}
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-        />
-      </div>
+      {(close) => (
+        <>
+          <div className="field">
+            <label htmlFor="m-date">Дата</label>
+            <input
+              id="m-date"
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+            />
+          </div>
+          <div className="field">
+            <label htmlFor="m-value">Значення, {meta?.unit}</label>
+            <input
+              id="m-value"
+              type="number"
+              inputMode="decimal"
+              step="0.1"
+              min={0}
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+            />
+          </div>
 
-      {error && <p className="form-error">{error}</p>}
+          {error && <p className="form-error">{error}</p>}
 
-      <div className="btn-row">
-        <button className="btn btn-outline" onClick={onClose} disabled={saving}>
-          Скасувати
-        </button>
-        <button
-          className="btn btn-grad"
-          disabled={!valid || saving}
-          onClick={() =>
-            void submit(async () => {
-              await addMeasurement(measureKey, date, parsed)
-              onClose()
-            })
-          }
-        >
-          {saving ? 'Збереження…' : 'Зберегти'}
-        </button>
-      </div>
+          <div className="btn-row">
+            <button className="btn btn-outline" onClick={close} disabled={saving}>
+              Скасувати
+            </button>
+            <button
+              className="btn btn-grad"
+              disabled={!valid || saving}
+              onClick={() =>
+                void submit(async () => {
+                  await addMeasurement(measureKey, date, parsed)
+                  close()
+                })
+              }
+            >
+              {saving ? 'Збереження…' : 'Зберегти'}
+            </button>
+          </div>
+        </>
+      )}
     </Modal>
   )
 }

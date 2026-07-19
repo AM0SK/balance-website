@@ -75,10 +75,7 @@ export function StepsScreen() {
       {adding && (
         <AddStepsModal
           onClose={() => setAdding(false)}
-          onSave={async (date, value) => {
-            await addSteps(date, value)
-            setAdding(false)
-          }}
+          onSave={(date, value) => addSteps(date, value)}
         />
       )}
     </>
@@ -101,40 +98,54 @@ function AddStepsModal({
 
   return (
     <Modal title="Кроки за день" onClose={onClose}>
-      <p className="modal-hint">Запис за цю дату буде перезаписано</p>
+      {(close) => (
+        <>
+          <p className="modal-hint">Запис за цю дату буде перезаписано</p>
 
-      <div className="field">
-        <label htmlFor="s-date">Дата</label>
-        <input id="s-date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-      </div>
+          <div className="field">
+            <label htmlFor="s-date">Дата</label>
+            <input
+              id="s-date"
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+            />
+          </div>
 
-      <div className="field">
-        <label htmlFor="s-count">Кроків</label>
-        <input
-          id="s-count"
-          type="number"
-          inputMode="numeric"
-          min={1}
-          placeholder="напр. 12 000"
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-        />
-      </div>
+          <div className="field">
+            <label htmlFor="s-count">Кроків</label>
+            <input
+              id="s-count"
+              type="number"
+              inputMode="numeric"
+              min={1}
+              placeholder="напр. 12 000"
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+            />
+          </div>
 
-      {error && <p className="form-error">{error}</p>}
+          {error && <p className="form-error">{error}</p>}
 
-      <div className="btn-row">
-        <button className="btn btn-outline" onClick={onClose} disabled={saving}>
-          Скасувати
-        </button>
-        <button
-          className="btn btn-grad"
-          disabled={!valid || saving}
-          onClick={() => void submit(() => onSave(date, parsed))}
-        >
-          {saving ? 'Збереження…' : 'Зберегти'}
-        </button>
-      </div>
+          <div className="btn-row">
+            <button className="btn btn-outline" onClick={close} disabled={saving}>
+              Скасувати
+            </button>
+            <button
+              className="btn btn-grad"
+              disabled={!valid || saving}
+              onClick={() =>
+                void submit(async () => {
+                  await onSave(date, parsed)
+                  close()
+                })
+              }
+            >
+              {saving ? 'Збереження…' : 'Зберегти'}
+            </button>
+          </div>
+        </>
+      )}
     </Modal>
   )
 }

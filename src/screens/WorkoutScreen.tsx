@@ -76,10 +76,7 @@ export function WorkoutScreen() {
         <AddWorkoutModal
           types={workoutTypes}
           onClose={() => setAdding(false)}
-          onSave={async (typeId, date, kcal) => {
-            await addWorkout(typeId, date, kcal)
-            setAdding(false)
-          }}
+          onSave={(typeId, date, kcal) => addWorkout(typeId, date, kcal)}
         />
       )}
     </>
@@ -105,49 +102,63 @@ function AddWorkoutModal({
 
   return (
     <Modal title="Нове тренування" onClose={onClose}>
-      <div className="field">
-        <label htmlFor="w-type">Тип</label>
-        <select id="w-type" value={typeId} onChange={(e) => setTypeId(e.target.value)}>
-          {types.map((t) => (
-            <option key={t.id} value={t.id}>
-              {t.name}
-            </option>
-          ))}
-        </select>
-      </div>
+      {(close) => (
+        <>
+          <div className="field">
+            <label htmlFor="w-type">Тип</label>
+            <select id="w-type" value={typeId} onChange={(e) => setTypeId(e.target.value)}>
+              {types.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
-      <div className="field">
-        <label htmlFor="w-date">Дата</label>
-        <input id="w-date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-      </div>
+          <div className="field">
+            <label htmlFor="w-date">Дата</label>
+            <input
+              id="w-date"
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+            />
+          </div>
 
-      <div className="field">
-        <label htmlFor="w-kcal">Спалено, ккал</label>
-        <input
-          id="w-kcal"
-          type="number"
-          inputMode="numeric"
-          min={1}
-          placeholder="напр. 420"
-          value={kcal}
-          onChange={(e) => setKcal(e.target.value)}
-        />
-      </div>
+          <div className="field">
+            <label htmlFor="w-kcal">Спалено, ккал</label>
+            <input
+              id="w-kcal"
+              type="number"
+              inputMode="numeric"
+              min={1}
+              placeholder="напр. 420"
+              value={kcal}
+              onChange={(e) => setKcal(e.target.value)}
+            />
+          </div>
 
-      {error && <p className="form-error">{error}</p>}
+          {error && <p className="form-error">{error}</p>}
 
-      <div className="btn-row">
-        <button className="btn btn-outline" onClick={onClose} disabled={saving}>
-          Скасувати
-        </button>
-        <button
-          className="btn btn-grad"
-          disabled={!valid || saving}
-          onClick={() => void submit(() => onSave(typeId, date, parsed))}
-        >
-          {saving ? 'Збереження…' : 'Зберегти'}
-        </button>
-      </div>
+          <div className="btn-row">
+            <button className="btn btn-outline" onClick={close} disabled={saving}>
+              Скасувати
+            </button>
+            <button
+              className="btn btn-grad"
+              disabled={!valid || saving}
+              onClick={() =>
+                void submit(async () => {
+                  await onSave(typeId, date, parsed)
+                  close()
+                })
+              }
+            >
+              {saving ? 'Збереження…' : 'Зберегти'}
+            </button>
+          </div>
+        </>
+      )}
     </Modal>
   )
 }

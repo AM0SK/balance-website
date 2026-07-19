@@ -27,70 +27,79 @@ export function QuantityModal({
 
   return (
     <Modal title={product.name} onClose={onClose}>
-      <p className="modal-hint">
-        Доступно сьогодні: {num(limit)} {unitLabel}
-      </p>
-      <div className="modal-pill">Спожито в категорії: {share}% / 100%</div>
+      {(close) => (
+        <>
+          <p className="modal-hint">
+            Доступно сьогодні: {num(limit)} {unitLabel}
+          </p>
+          <div className="modal-pill">Спожито в категорії: {share}% / 100%</div>
 
-      <p className="modal-qty">
-        Кількість ({isPieces ? 'шт' : 'грам'}): <b className="num">{dec(value, isPieces ? 0 : 0)}</b>{' '}
-        (макс: {num(limit)} {unitLabel})
-      </p>
+          <p className="modal-qty">
+            Кількість ({isPieces ? 'шт' : 'грам'}):{' '}
+            <b className="num">{dec(value, isPieces ? 0 : 0)}</b> (макс: {num(limit)} {unitLabel})
+          </p>
 
-      <input
-        className="slider"
-        type="range"
-        min={0}
-        max={Math.max(limit, 1)}
-        step={step}
-        value={value}
-        onChange={(e) => setValue(Number(e.target.value))}
-        style={{ ['--pct' as string]: `${share}%` }}
-        aria-label={`Кількість, ${unitLabel}`}
-      />
+          <input
+            className="slider"
+            type="range"
+            min={0}
+            max={Math.max(limit, 1)}
+            step={step}
+            value={value}
+            onChange={(e) => setValue(Number(e.target.value))}
+            style={{ ['--pct' as string]: `${share}%` }}
+            aria-label={`Кількість, ${unitLabel}`}
+          />
 
-      <div className="modal-values">
-        <div>
-          <b className="num">{num(value * product.kcalPerUnit)}</b>
-          <span>ккал</span>
-        </div>
-        <div>
-          <b className="num">{dec(value * product.proteinPerUnit)}</b>
-          <span>білки, г</span>
-        </div>
-      </div>
+          <div className="modal-values">
+            <div>
+              <b className="num">{num(value * product.kcalPerUnit)}</b>
+              <span>ккал</span>
+            </div>
+            <div>
+              <b className="num">{dec(value * product.proteinPerUnit)}</b>
+              <span>білки, г</span>
+            </div>
+          </div>
 
-      <div className="quickpct">
-        {QUICK.map((p) => {
-          const target = isPieces
-            ? Math.floor((limit * p) / 100)
-            : Math.round((limit * p) / 100)
-          return (
-            <button
-              key={p}
-              className={value === target && target > 0 ? 'on' : ''}
-              onClick={() => setValue(target)}
-            >
-              {p}%
+          <div className="quickpct">
+            {QUICK.map((p) => {
+              const target = isPieces
+                ? Math.floor((limit * p) / 100)
+                : Math.round((limit * p) / 100)
+              return (
+                <button
+                  key={p}
+                  className={value === target && target > 0 ? 'on' : ''}
+                  onClick={() => setValue(target)}
+                >
+                  {p}%
+                </button>
+              )
+            })}
+          </div>
+
+          {error && <p className="form-error">{error}</p>}
+
+          <div className="btn-row">
+            <button className="btn btn-outline" onClick={close} disabled={saving}>
+              Скасувати
             </button>
-          )
-        })}
-      </div>
-
-      {error && <p className="form-error">{error}</p>}
-
-      <div className="btn-row">
-        <button className="btn btn-outline" onClick={onClose} disabled={saving}>
-          Скасувати
-        </button>
-        <button
-          className="btn btn-grad"
-          disabled={saving}
-          onClick={() => void submit(() => onConfirm(value))}
-        >
-          {saving ? 'Збереження…' : 'Підтвердити'}
-        </button>
-      </div>
+            <button
+              className="btn btn-grad"
+              disabled={saving}
+              onClick={() =>
+                void submit(async () => {
+                  await onConfirm(value)
+                  close()
+                })
+              }
+            >
+              {saving ? 'Збереження…' : 'Підтвердити'}
+            </button>
+          </div>
+        </>
+      )}
     </Modal>
   )
 }
