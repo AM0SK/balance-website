@@ -80,6 +80,23 @@ describe('ліміт продукту', () => {
     expect(rowFor(BASE_KCAL, 'zh-spirits').limit).toBe(50)
   })
 
+  it('вважає maxUnits: null відсутністю стелі, а не нулем', () => {
+    /*
+     * API віддає maxUnits: null для продуктів без стелі, тоді як локальний
+     * довідник просто не має поля. Перевірка на !== undefined пропускала null,
+     * і null * scale обнуляв ліміт КОЖНОГО продукту без стелі — на бойовому
+     * сервері весь Раціон показував нулі, а тести на catalog.ts проходили.
+     */
+    const fromApi = PRODUCTS.map((p) => ({ ...p, maxUnits: p.maxUnits ?? null }))
+    const budgets = computeBudgets(BASE_KCAL, fromApi, CATEGORIES)
+    const rows = buildCategoryViews(fromApi, CATEGORIES, {}, budgets, BASE_KCAL).flatMap(
+      (v) => v.rows,
+    )
+
+    expect(rows.filter((r) => r.limit === 0)).toEqual([])
+    expect(rows.find((r) => r.product.id === 'a-potato')?.limit).toBeCloseTo(311, -1)
+  })
+
   it('штучні одиниці округлює вниз', () => {
     const eggs = rowFor(BASE_KCAL, 'b-eggs')
     expect(Number.isInteger(eggs.limit)).toBe(true)

@@ -54,13 +54,10 @@ export function App() {
   return (
     <div className="app">
       {status === 'mock' && <MockBanner />}
-      <TopBar onOpenSettings={() => setSettingsOpen(true)} />
 
-      {/*
-        Заголовок H1 і «+ Додати» свідомо всередині зони прокрутки:
-        закріплена лише шапка.
-      */}
+      {/* Шапка їде разом із контентом — вона всередині зони прокрутки. */}
       <main className="stack">
+        <TopBar onOpenSettings={() => setSettingsOpen(true)} />
         {tab === 'home' && <HomeScreen onOpenTab={setTab} />}
         {tab === 'ration' && <RationScreen />}
         {tab === 'workout' && <WorkoutScreen />}

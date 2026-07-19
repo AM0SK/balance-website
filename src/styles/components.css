@@ -22,6 +22,7 @@
   margin: 0 auto;
 }
 
+/* Шапка не закріплена — прокручується разом із контентом. */
 .topbar {
   display: flex;
   align-items: center;
@@ -75,6 +76,10 @@
   font-size: var(--t-h1-size);
   font-weight: var(--t-h1-weight);
   letter-spacing: -0.02em;
+}
+/* Тільки Налаштування: заголовок по центру. */
+.pagehead-center {
+  justify-content: center;
 }
 .btn-add {
   display: flex;
@@ -131,6 +136,18 @@
   box-shadow: var(--card-shadow);
   -webkit-backdrop-filter: blur(var(--card-blur));
   backdrop-filter: blur(var(--card-blur));
+}
+
+/*
+ * Кнопка закриття Налаштувань — інверсна.
+ * Має стояти ПІСЛЯ спільного правила поверхонь вище: те правило теж
+ * зачіпає .gearbtn, і за однакової специфічності перемагає останнє.
+ */
+.gearbtn-close {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: transparent;
+  box-shadow: none;
 }
 
 .card {
@@ -607,9 +624,22 @@
   border-color: var(--line);
   color: var(--ink);
 }
+/*
+ * Вимкнена кнопка. Раніше було просто opacity, і градієнтна кнопка
+ * виглядала не «поки недоступна», а «зламана»: білий текст на 45%
+ * читався сірим поверх темного градієнта.
+ */
 .btn:disabled {
-  opacity: 0.45;
   cursor: not-allowed;
+}
+.btn-grad:disabled {
+  background: var(--fill-tint);
+  color: var(--ink-faint);
+  border-color: var(--line);
+  box-shadow: none;
+}
+.btn-outline:disabled {
+  opacity: 0.5;
 }
 .btn-row {
   display: flex;
@@ -638,21 +668,6 @@
 }
 .avatar-wrap .avatar-lg {
   margin: 0;
-}
-.avatar-wrap .edit {
-  position: absolute;
-  bottom: -2px;
-  right: -2px;
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  background: var(--ink);
-  color: var(--paper);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 2px solid var(--paper);
-  font-size: 12px;
 }
 .profile-name {
   text-align: center;
@@ -962,6 +977,43 @@
   font-size: 11px;
   font-weight: 700;
   text-align: center;
+}
+
+/* Олівець зліва від назви — позначає, що рядок редагується. */
+.edit-icon {
+  display: inline-flex;
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+  color: var(--ink-faint);
+}
+.edit-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Перемикач теми: три сегменти, активний — градієнтом. */
+.segmented {
+  display: inline-flex;
+  gap: 4px;
+  padding: 3px;
+  border-radius: var(--radius-pill);
+  background: var(--fill-tint);
+}
+.segmented button {
+  padding: 5px 11px;
+  border-radius: var(--radius-pill);
+  border: none;
+  background: transparent;
+  color: var(--ink-faint);
+  font-family: var(--font-ui);
+  font-size: 11.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.segmented button.on {
+  background: var(--grad);
+  color: #fff;
 }
 
 .form-error {

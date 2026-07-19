@@ -43,7 +43,7 @@
   /* ---------- ЕФЕКТИ ---------- */
   --card-blur: 5px;
   --nav-blur: 10px;
-  --overlay-blur: 5px;
+  --overlay-blur: 10px;
   --bg-stop: 65%;          /* де фон темної теми виходить у чорний */
   --card-alpha-light: 100%;
   --card-alpha-dark: 5%;
@@ -68,6 +68,11 @@
   --chip-ink: #FFFFFF;
 
   /* ---------- СВІТЛА ТЕМА ---------- */
+  /* Каже браузеру, якими малювати нативні контроли: іконку календаря
+     в <input type="date">, стрілку <select>, смуги прокрутки. Без цього
+     в темній темі іконка календаря лишається чорною на темному тлі. */
+  color-scheme: light;
+
   --paper: #F4F4F6;
   --paper-raised: #FFFFFF;
   --card: rgb(255 255 255 / var(--card-alpha-light));
@@ -112,6 +117,7 @@
    щоб data-theme завжди перекривав prefers-color-scheme в обидва боки. */
 @media (prefers-color-scheme: dark){
   :root{
+    color-scheme: dark;
     --paper: #0E0C14;
     --paper-raised: rgba(255,255,255,.06);
     --card: rgb(255 255 255 / var(--card-alpha-dark));
@@ -160,6 +166,7 @@
 }
 
 :root[data-theme="dark"]{
+  color-scheme: dark;
   --paper: #0E0C14;
   --paper-raised: rgba(255,255,255,.06);
   --card: rgb(255 255 255 / var(--card-alpha-dark));
@@ -207,6 +214,7 @@
 }
 
 :root[data-theme="light"]{
+  color-scheme: light;
   --paper: #F4F4F6;
   --paper-raised: #FFFFFF;
   --card: rgb(255 255 255 / var(--card-alpha-light));

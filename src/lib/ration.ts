@@ -123,8 +123,17 @@ function limitFor(
 ): number {
   const extra = remainingKcal / product.kcalPerUnit
   let raw = consumedUnits + Math.max(0, extra)
-  // Власна стеля продукту, якщо вона жорсткіша за бюджет категорії.
-  if (product.maxUnits !== undefined) raw = Math.min(raw, product.maxUnits * scale)
+
+  /*
+   * Власна стеля продукту, якщо вона жорсткіша за бюджет категорії.
+   *
+   * Перевірка саме на null І undefined: API віддає null для продуктів без
+   * стелі, локальний довідник просто не має поля. Раніше стояло !== undefined,
+   * і null проходив далі — null * scale дає 0, тож ліміт кожного продукту
+   * без стелі обнулявся.
+   */
+  if (product.maxUnits != null) raw = Math.min(raw, product.maxUnits * scale)
+
   return product.unit === 'pcs' ? Math.floor(raw) : Math.round(raw)
 }
 

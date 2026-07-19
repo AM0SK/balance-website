@@ -33,6 +33,8 @@ const paths = {
     </>
   ),
   close: <path d="M18 6 6 18M6 6l12 12" />,
+  /** Олівець — позначає, що рядок можна відредагувати. */
+  edit: <path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" />,
   plus: <path d="M12 5v14M5 12h14" />,
   chevronDown: <path d="M6 9l6 6 6-6" />,
 } as const

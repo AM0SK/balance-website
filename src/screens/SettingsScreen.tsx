@@ -5,15 +5,19 @@ import { computeBudgets, guaranteedProtein, PROTEIN_FLOOR } from '@/lib/ration'
 import { dec, num } from '@/lib/format'
 import { useStore } from '@/lib/store'
 import { useSubmit } from '@/lib/useSubmit'
+import { useTheme, type ThemePreference } from '@/lib/theme'
 
-type Editing =
-  | { kind: 'profile' }
-  | { kind: 'kcal' }
-  | { kind: 'measure'; key: string }
-  | null
+type Editing = { kind: 'kcal' } | { kind: 'measure'; key: string } | null
+
+const THEME_OPTIONS: { value: ThemePreference; label: string }[] = [
+  { value: 'auto', label: 'Авто' },
+  { value: 'light', label: 'Світла' },
+  { value: 'dark', label: 'Темна' },
+]
 
 export function SettingsScreen({ onClose }: { onClose: () => void }) {
   const { profile, measurements, measurementKinds } = useStore()
+  const { preference, setPreference } = useTheme()
   const [editing, setEditing] = useState<Editing>(null)
 
   const latest = (key: string) =>
@@ -23,24 +27,22 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
 
   return (
     <>
-      <header className="topbar">
-        <div className="wordmark" style={{ opacity: 0.45 }}>
-          Balance
-        </div>
-        <div className="right">
-          <button
-            className="gearbtn"
-            onClick={onClose}
-            aria-label="Закрити налаштування"
-            style={{ background: 'var(--ink)', color: 'var(--paper)', borderColor: 'transparent' }}
-          >
-            <Icon name="close" />
-          </button>
-        </div>
-      </header>
-
       <div className="stack">
-        <div className="pagehead">
+        <header className="topbar">
+          <div className="wordmark">Balance</div>
+          <div className="right">
+            <button
+              className="gearbtn gearbtn-close"
+              onClick={onClose}
+              aria-label="Закрити налаштування"
+            >
+              <Icon name="close" />
+            </button>
+          </div>
+        </header>
+
+        {/* Заголовок по центру — тільки на цьому екрані. */}
+        <div className="pagehead pagehead-center">
           <h1 className="pagetitle">Налаштування</h1>
         </div>
 
@@ -51,25 +53,20 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
             ) : (
               <div className="avatar-lg" />
             )}
-            <div className="edit" aria-hidden="true">
-              ✎
-            </div>
           </div>
           <div className="profile-name">{profile.name}</div>
-          <button
-            className="username"
-            onClick={() => setEditing({ kind: 'profile' })}
-            style={{ display: 'block', width: '100%' }}
-          >
-            Змінити фото та ім'я
-          </button>
         </div>
 
         <div>
           <div className="sectionlbl">Ціль</div>
           <div className="plainrows">
             <button className="prow2" onClick={() => setEditing({ kind: 'kcal' })}>
-              <span className="name">Денний ліміт калорій</span>
+              <span className="name">
+                <span className="edit-icon">
+                  <Icon name="edit" />
+                </span>
+                Денний ліміт калорій
+              </span>
               <span className="sub num">{num(profile.dailyKcal)} ккал</span>
             </button>
           </div>
@@ -87,7 +84,9 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
                   onClick={() => setEditing({ kind: 'measure', key: m.key })}
                 >
                   <span className="name">
-                    {!value && <span className="flagdot" />}
+                    <span className="edit-icon">
+                      <Icon name="edit" />
+                    </span>
                     {m.name}
                   </span>
                   <span className="val">
@@ -110,12 +109,19 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
           <div className="sectionlbl">Акаунт</div>
           <div className="plainrows">
             <div className="prow2">
-              <span className="name">Сповіщення</span>
-              <span className="sub">увімк.</span>
-            </div>
-            <div className="prow2">
-              <span className="name">Одиниці виміру</span>
-              <span className="sub">метричні</span>
+              <span className="name">Тема</span>
+              <span className="segmented">
+                {THEME_OPTIONS.map((option) => (
+                  <button
+                    key={option.value}
+                    className={preference === option.value ? 'on' : ''}
+                    onClick={() => setPreference(option.value)}
+                    aria-pressed={preference === option.value}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </span>
             </div>
             <div className="prow2">
               <span className="name">Мова</span>
@@ -125,56 +131,11 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
         </div>
       </div>
 
-      {editing?.kind === 'profile' && <ProfileModal onClose={() => setEditing(null)} />}
       {editing?.kind === 'kcal' && <KcalModal onClose={() => setEditing(null)} />}
       {editing?.kind === 'measure' && (
         <MeasureModal measureKey={editing.key} onClose={() => setEditing(null)} />
       )}
     </>
-  )
-}
-
-function ProfileModal({ onClose }: { onClose: () => void }) {
-  const { profile, updateProfile } = useStore()
-  const [name, setName] = useState(profile.name)
-  const [photoUrl, setPhotoUrl] = useState(profile.photoUrl ?? '')
-  const { saving, error, submit } = useSubmit()
-
-  return (
-    <Modal title="Профіль" onClose={onClose}>
-      <div className="field">
-        <label htmlFor="p-name">Ім'я</label>
-        <input id="p-name" value={name} onChange={(e) => setName(e.target.value)} />
-      </div>
-      <div className="field">
-        <label htmlFor="p-photo">Посилання на фото</label>
-        <input
-          id="p-photo"
-          value={photoUrl}
-          placeholder="лишити порожнім — буде градієнт"
-          onChange={(e) => setPhotoUrl(e.target.value)}
-        />
-      </div>
-      {error && <p className="form-error">{error}</p>}
-
-      <div className="btn-row">
-        <button className="btn btn-outline" onClick={onClose} disabled={saving}>
-          Скасувати
-        </button>
-        <button
-          className="btn btn-grad"
-          disabled={name.trim().length === 0 || saving}
-          onClick={() =>
-            void submit(async () => {
-              await updateProfile({ name: name.trim(), photoUrl: photoUrl.trim() || null })
-              onClose()
-            })
-          }
-        >
-          {saving ? 'Збереження…' : 'Зберегти'}
-        </button>
-      </div>
-    </Modal>
   )
 }
 
@@ -265,6 +226,7 @@ function MeasureModal({ measureKey, onClose }: { measureKey: string; onClose: ()
           onChange={(e) => setValue(e.target.value)}
         />
       </div>
+
       {error && <p className="form-error">{error}</p>}
 
       <div className="btn-row">

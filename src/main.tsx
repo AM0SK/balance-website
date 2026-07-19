@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { App } from './App'
 import { StoreProvider } from '@/lib/store'
+import { ThemeProvider } from '@/lib/theme'
 import { initTelegram } from '@/lib/telegram'
 
 import './styles/tokens.css'
@@ -15,8 +16,10 @@ if (!root) throw new Error('Не знайдено #root')
 
 createRoot(root).render(
   <StrictMode>
-    <StoreProvider>
-      <App />
-    </StoreProvider>
+    <ThemeProvider>
+      <StoreProvider>
+        <App />
+      </StoreProvider>
+    </ThemeProvider>
   </StrictMode>,
 )
