@@ -30,12 +30,22 @@ export function Modal({
 }) {
   const sheetRef = useRef<HTMLDivElement>(null)
   const restoreFocusTo = useRef<Element | null>(null)
+  const prevOverflowRef = useRef('')
   const [closing, setClosing] = useState(false)
   const closeTimerRef = useRef<number | null>(null)
 
   const requestClose = useCallback(() => {
     setClosing((already) => {
       if (already) return already
+      /*
+       * Скрол і клікабельність сторінки під модалкою повертаються ОДРАЗУ,
+       * не чекаючи EXIT_MS: підложка ще 500ms видима й з opacity-переходом,
+       * але pointer-events:none у CSS (.is-closing) прибирає її з-під
+       * дотиків негайно. Якби чекали повного розмонтування — сторінка під
+       * блюром 500ms не реагувала б на скрол і тапи, що й виглядало як
+       * «зависання» після підтвердження.
+       */
+      document.body.style.overflow = prevOverflowRef.current
       closeTimerRef.current = window.setTimeout(onClose, EXIT_MS)
       return true
     })
@@ -51,12 +61,12 @@ export function Modal({
     document.addEventListener('keydown', onKeyDown)
 
     // Фон не має скролитись під відкритою модалкою.
-    const prevOverflow = document.body.style.overflow
+    prevOverflowRef.current = document.body.style.overflow
     document.body.style.overflow = 'hidden'
 
     return () => {
       document.removeEventListener('keydown', onKeyDown)
-      document.body.style.overflow = prevOverflow
+      document.body.style.overflow = prevOverflowRef.current
       if (closeTimerRef.current !== null) clearTimeout(closeTimerRef.current)
       ;(restoreFocusTo.current as HTMLElement | null)?.focus?.()
     }

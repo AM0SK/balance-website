@@ -792,6 +792,9 @@
 }
 .modal-overlay.is-closing {
   opacity: 0;
+  /* Інакше невидима, але ще присутні 500ms підложка перехоплює дотики —
+     сторінка під нею здається "зависла": не скролиться, не натискається. */
+  pointer-events: none;
 }
 .modal-sheet {
   width: 100%;
@@ -800,6 +803,7 @@
   padding: 22px 18px 18px;
   position: relative;
   max-height: 88dvh;
+  overflow-y: auto;
   opacity: 1;
   transform: scale(1);
   transition:
@@ -829,8 +833,6 @@
 }
 .modal-overlay:not(.is-closing) {
   animation: modal-overlay-in 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-}
-  overflow-y: auto;
 }
 .modal-close {
   position: absolute;

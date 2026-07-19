@@ -64,9 +64,17 @@ export function QuantityModal({
 
           <div className="quickpct">
             {QUICK.map((p) => {
-              const target = isPieces
-                ? Math.floor((limit * p) / 100)
-                : Math.round((limit * p) / 100)
+              /*
+               * <input type="range" step={step}> сам обмежує позицію повзунка
+               * кратними step значеннями. Якщо порахувати «рівно 25% від
+               * ліміту» без округлення до кроку — повзунок і наша заливка
+               * (--pct, рахується від того самого value) розійдуться:
+               * браузер намалює повзунок у найближчій дозволеній точці,
+               * а текст/заливка покажуть нашу нерівну цифру. 100% — виняток,
+               * max завжди коректна позиція для range independent від step.
+               */
+              const raw = (limit * p) / 100
+              const target = p === 100 ? limit : Math.min(limit, Math.round(raw / step) * step)
               return (
                 <button
                   key={p}

@@ -15,6 +15,21 @@ body,
   height: 100%;
 }
 
+/*
+ * Прибирає системне синє підсвічування при тапі на мобільних (iOS Safari /
+ * Android Chrome WebView, у т.ч. усередині Telegram). Успадковується від
+ * html, але Safari іноді ігнорує успадкування на конкретних інтерактивних
+ * елементах — тому дублюємо явно на button/a/[role="button"].
+ */
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+button,
+a,
+[role='button'] {
+  -webkit-tap-highlight-color: transparent;
+}
+
 body {
   margin: 0;
   font-family: var(--font-ui);

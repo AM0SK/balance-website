@@ -62,14 +62,24 @@ export function App() {
     <div className="app">
       {status === 'mock' && <MockBanner />}
 
-      {/* Шапка їде разом із контентом — вона всередині зони прокрутки. */}
-      <main className="stack">
-        <TopBar title={TITLES[tab]} onOpenSettings={() => setSettingsOpen(true)} />
-        {tab === 'home' && <HomeScreen onOpenTab={setTab} />}
-        {tab === 'ration' && <RationScreen />}
-        {tab === 'workout' && <WorkoutScreen />}
-        {tab === 'steps' && <StepsScreen />}
-      </main>
+      {/*
+        Усі чотири вкладки тримаються змонтованими одночасно, видимість
+        перемикається через CSS (display), а не умовним рендером. Інакше
+        неактивна вкладка розмонтовувалась би повністю — досить було
+        перейти з Раціону на Головну, і кільце прогресу на Головній
+        втрачало б стан анімації, монтуючись заново вже з кінцевим
+        значенням. Кожна вкладка — власний скрол-контейнер із власною
+        шапкою: заголовок їде разом із контентом.
+      */}
+      {(Object.keys(TITLES) as TabKey[]).map((key) => (
+        <main className="stack" key={key} style={{ display: tab === key ? 'flex' : 'none' }}>
+          <TopBar title={TITLES[key]} onOpenSettings={() => setSettingsOpen(true)} />
+          {key === 'home' && <HomeScreen onOpenTab={setTab} />}
+          {key === 'ration' && <RationScreen />}
+          {key === 'workout' && <WorkoutScreen />}
+          {key === 'steps' && <StepsScreen />}
+        </main>
+      ))}
 
       <TabBar active={tab} onChange={setTab} />
     </div>
