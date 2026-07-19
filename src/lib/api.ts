@@ -111,8 +111,12 @@ export const api = {
   ): Promise<{ measurements: Measurement[] }> =>
     send('PUT', '/measurements', { key, day, value }),
 
-  /** Чистить зібрану статистику. Профіль і дані з Telegram лишаються. */
+  /**
+   * Чистить зібрану статистику й повертає денний ліміт калорій до дефолту.
+   * Дані з Telegram і решта цілей профілю лишаються незмінними.
+   */
   resetProgress: (): Promise<{
+    dailyKcal: number
     consumed: Consumed
     workouts: Workout[]
     steps: StepsEntry[]

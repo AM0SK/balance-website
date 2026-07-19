@@ -33,6 +33,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
+// Те саме число, що DEFAULT у users.daily_kcal (schema.sql) і DEFAULT_DAILY_KCAL
+// на фронтенді (src/lib/types.ts) — за ним Головна визначає, чи ліміт ще не задано.
+const DEFAULT_DAILY_KCAL = 1766;
+
 $pdo = connectDatabase($config['db']);
 
 $user = authenticate($pdo, $config);
@@ -206,9 +210,10 @@ switch ("$method /$path") {
         sendJson(['ok' => true, 'measurements' => fetchMeasurements($pdo, $userId)]);
 
     // -----------------------------------------------------------------------
-    // Скидання прогресу: чистимо тільки зібрану статистику. Рядок `users`
-    // лишається недоторканим — там дані з Telegram (id, ім'я, аватар) і цілі,
-    // які користувач налаштував сам. Це не «видалення акаунта».
+    // Скидання прогресу: чистимо зібрану статистику й повертаємо денний ліміт
+    // калорій до дефолту — Головна знову підказує його задати. Дані з Telegram
+    // (id, ім'я, аватар) і решта цілей (кроки, тренування) лишаються — це не
+    // «видалення акаунта».
     // -----------------------------------------------------------------------
     case 'POST /reset-progress':
         $pdo->beginTransaction();
@@ -216,6 +221,8 @@ switch ("$method /$path") {
             foreach (['consumption', 'workouts', 'steps', 'measurements'] as $table) {
                 $pdo->prepare("DELETE FROM $table WHERE user_id = ?")->execute([$userId]);
             }
+            $pdo->prepare('UPDATE users SET daily_kcal = ? WHERE id = ?')
+                ->execute([DEFAULT_DAILY_KCAL, $userId]);
             $pdo->commit();
         } catch (Throwable $e) {
             $pdo->rollBack();
@@ -224,6 +231,7 @@ switch ("$method /$path") {
 
         sendJson([
             'ok'           => true,
+            'dailyKcal'    => DEFAULT_DAILY_KCAL,
             'consumed'     => fetchConsumed($pdo, $userId, $today),
             'workouts'     => fetchWorkouts($pdo, $userId),
             'steps'        => fetchSteps($pdo, $userId),

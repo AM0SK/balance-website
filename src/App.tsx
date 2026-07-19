@@ -89,7 +89,9 @@ export function App() {
         <ScreenActivationContext.Provider key={key} value={activations[key]}>
           <main className="stack" style={{ display: tab === key ? 'flex' : 'none' }}>
             <TopBar title={TITLES[key]} onOpenSettings={() => setSettingsOpen(true)} />
-            {key === 'home' && <HomeScreen onOpenTab={setTab} />}
+            {key === 'home' && (
+              <HomeScreen onOpenTab={setTab} onOpenSettings={() => setSettingsOpen(true)} />
+            )}
             {key === 'ration' && <RationScreen />}
             {key === 'workout' && <WorkoutScreen />}
             {key === 'steps' && <StepsScreen />}

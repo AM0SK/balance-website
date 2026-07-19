@@ -102,3 +102,10 @@ export interface UserProfile {
   stepsGoal: number
   workoutsPerWeekGoal: number
 }
+
+/**
+ * Значення dailyKcal для нового профілю (`users.daily_kcal` у схемі БД).
+ * Поки ліміт дорівнює цьому числу, вважаємо, що користувач ще не задав
+ * власний — Головна показує підказку налаштувати його.
+ */
+export const DEFAULT_DAILY_KCAL = 1766

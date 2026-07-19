@@ -16,7 +16,7 @@ import {
   MOCK_STEPS,
   MOCK_WORKOUTS,
 } from '@/data/mockState'
-import type { UserProfile } from './types'
+import { DEFAULT_DAILY_KCAL, type UserProfile } from './types'
 
 /** 'mock' означає, що бекенд недоступний і дані несправжні — це видно в інтерфейсі. */
 type Status = 'loading' | 'ready' | 'mock' | 'error'
@@ -172,14 +172,18 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       },
 
       resetProgress: async () => {
-        // Профіль і довідники не чіпаємо — зміну видно одразу, без перезавантаження.
+        // Довідники не чіпаємо — зміну видно одразу, без перезавантаження.
         const empty = { consumed: {}, workouts: [], steps: [], measurements: [] }
         if (isMock) {
-          setData((prev) => ({ ...prev, ...empty }))
+          setData((prev) => ({
+            ...prev,
+            ...empty,
+            profile: { ...prev.profile, dailyKcal: DEFAULT_DAILY_KCAL },
+          }))
           return
         }
-        const fresh = await api.resetProgress()
-        setData((prev) => ({ ...prev, ...fresh }))
+        const { dailyKcal, ...rest } = await api.resetProgress()
+        setData((prev) => ({ ...prev, ...rest, profile: { ...prev.profile, dailyKcal } }))
       },
     }),
     [data, status, errorMessage, isMock, load],

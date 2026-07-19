@@ -5,6 +5,7 @@ import { Ring } from '@/components/ui/Ring'
 import { buildCategoryViews, computeBudgets, dayTotals } from '@/lib/ration'
 import { dec, num, pct, relativeDays } from '@/lib/format'
 import { useStore } from '@/lib/store'
+import { DEFAULT_DAILY_KCAL } from '@/lib/types'
 import { useAnimatedNumber } from '@/lib/useAnimatedNumber'
 
 const startOfWeek = (): string => {
@@ -14,7 +15,13 @@ const startOfWeek = (): string => {
   return d.toISOString().slice(0, 10)
 }
 
-export function HomeScreen({ onOpenTab }: { onOpenTab: (tab: 'ration' | 'workout' | 'steps') => void }) {
+export function HomeScreen({
+  onOpenTab,
+  onOpenSettings,
+}: {
+  onOpenTab: (tab: 'ration' | 'workout' | 'steps') => void
+  onOpenSettings: () => void
+}) {
   const {
     profile,
     consumed,
@@ -78,6 +85,16 @@ export function HomeScreen({ onOpenTab }: { onOpenTab: (tab: 'ration' | 'workout
 
   return (
     <>
+      {profile.dailyKcal === DEFAULT_DAILY_KCAL && (
+        <div className="kcal-nudge">
+          <span>встановіть свій ліміт калорій</span>
+          <button className="btn-add" onClick={onOpenSettings}>
+            <Icon name="plus" strokeWidth={2.6} />
+            Додати
+          </button>
+        </div>
+      )}
+
       <button className="card" onClick={() => onOpenTab('ration')}>
         <span className="meta">
           <span className="icon-row">
