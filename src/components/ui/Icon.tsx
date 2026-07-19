@@ -73,6 +73,15 @@ const paths = {
   plus: <path d="M12 5v14M5 12h14" />,
   /** lucide: chevron-down */
   chevronDown: <path d="m6 9 6 6 6-6" />,
+  /** lucide: calendar */
+  calendar: (
+    <>
+      <path d="M8 2v4" />
+      <path d="M16 2v4" />
+      <rect width="18" height="18" x="3" y="4" rx="2" />
+      <path d="M3 10h18" />
+    </>
+  ),
   /** lucide: pencil — позначає, що рядок можна відредагувати */
   edit: <path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" />,
 } as const

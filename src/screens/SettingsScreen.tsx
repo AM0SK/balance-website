@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { DateField } from '@/components/ui/DateField'
 import { Icon } from '@/components/ui/Icon'
 import { Modal } from '@/components/ui/Modal'
 import { computeBudgets, guaranteedProtein, PROTEIN_FLOOR } from '@/lib/ration'
@@ -256,12 +257,7 @@ function MeasureModal({ measureKey, onClose }: { measureKey: string; onClose: ()
         <>
           <div className="field">
             <label htmlFor="m-date">Дата</label>
-            <input
-              id="m-date"
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-            />
+            <DateField id="m-date" value={date} onChange={setDate} />
           </div>
           <div className="field">
             <label htmlFor="m-value">Значення, {meta?.unit}</label>

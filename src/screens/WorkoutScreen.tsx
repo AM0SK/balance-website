@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { AnimatedBar } from '@/components/ui/AnimatedBar'
+import { DateField } from '@/components/ui/DateField'
 import { Icon } from '@/components/ui/Icon'
 import { Modal } from '@/components/ui/Modal'
 import { dateWithWeekday, num } from '@/lib/format'
@@ -114,7 +115,7 @@ function AddWorkoutModal({
                   </option>
                 ))}
               </select>
-              <span className="chevron">
+              <span className="field-icon">
                 <Icon name="chevronDown" />
               </span>
             </span>
@@ -122,12 +123,7 @@ function AddWorkoutModal({
 
           <div className="field">
             <label htmlFor="w-date">Дата</label>
-            <input
-              id="w-date"
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-            />
+            <DateField id="w-date" value={date} onChange={setDate} />
           </div>
 
           <div className="field">

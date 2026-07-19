@@ -1039,22 +1039,36 @@
   font-family: var(--font-ui);
 }
 /*
- * Нативні іконки (календар у type="date", стрілка <select>) ігнорують
- * padding інпута — рендеряться впритул до border, тоді як значення
- * зліва стоїть з відступом 14px. Стрілку select ховаємо і малюємо
- * поверх власною Icon (currentColor — сама підхоплює тему); іконку
- * календаря зсуваємо через margin на самому індикаторі — на нього,
- * на відміну від padding інпута, браузер зважає.
+ * Нативні іконки полів (стрілка <select>, календар у type="date")
+ * рендеряться по-різному залежно від рушія і не слухаються padding
+ * інпута: у мобільному WebView замість календаря малювалась така сама
+ * стрілка, як у select. Тому обидві нативні іконки прибираємо і
+ * малюємо свої через Icon — вони однакові скрізь і беруть колір з
+ * currentColor, тобто самі перемикаються з темою.
  */
 .field select {
   appearance: none;
   -webkit-appearance: none;
   padding-right: 34px;
 }
-.select-wrap {
-  position: relative;
+.field input[type='date'] {
+  padding-right: 34px;
 }
-.select-wrap .chevron {
+/*
+ * Нативний індикатор ховаємо повністю. Пікер відкриває showPicker()
+ * з onClick на самому інпуті (див. DateField) — інакше на десктопі
+ * клік лише ставив курсор у сегмент дати. На мобільному тап по полю
+ * відкриває пікер і без цього, це поведінка type="date" за замовчуванням.
+ */
+.field input[type='date']::-webkit-calendar-picker-indicator {
+  display: none;
+}
+.select-wrap,
+.date-wrap {
+  position: relative;
+  display: block;
+}
+.field-icon {
   position: absolute;
   top: 50%;
   right: 12px;
@@ -1064,19 +1078,9 @@
   color: var(--ink-soft);
   pointer-events: none;
 }
-.select-wrap .chevron svg {
+.field-icon svg {
   width: 100%;
   height: 100%;
-}
-/*
- * Лише padding-right, без своєї margin на ::-webkit-calendar-picker-indicator:
- * від'ємний margin на цьому індикаторі в мобільному WebView (Telegram,
- * Android) ламав рендер нативної іконки календаря — замість неї
- * малювалась спрощена стрілка. У звичайному Chrome desktop цього не
- * було видно, спливло тільки на бойовому.
- */
-.field input[type='date'] {
-  padding-right: 30px;
 }
 .field input:focus-visible,
 .field select:focus-visible {

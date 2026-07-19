@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { AnimatedBar } from '@/components/ui/AnimatedBar'
+import { DateField } from '@/components/ui/DateField'
 import { Icon } from '@/components/ui/Icon'
 import { Modal } from '@/components/ui/Modal'
 import { dateShort, num, weekday } from '@/lib/format'
@@ -104,12 +105,7 @@ function AddStepsModal({
 
           <div className="field">
             <label htmlFor="s-date">Дата</label>
-            <input
-              id="s-date"
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-            />
+            <DateField id="s-date" value={date} onChange={setDate} />
           </div>
 
           <div className="field">
