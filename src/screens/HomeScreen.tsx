@@ -1,9 +1,11 @@
 import { useMemo } from 'react'
+import { AnimatedBar } from '@/components/ui/AnimatedBar'
 import { Icon } from '@/components/ui/Icon'
 import { Ring } from '@/components/ui/Ring'
 import { buildCategoryViews, computeBudgets, dayTotals } from '@/lib/ration'
 import { dec, num, pct, relativeDays } from '@/lib/format'
 import { useStore } from '@/lib/store'
+import { useAnimatedNumber } from '@/lib/useAnimatedNumber'
 
 const startOfWeek = (): string => {
   const d = new Date()
@@ -45,6 +47,11 @@ export function HomeScreen({ onOpenTab }: { onOpenTab: (tab: 'ration' | 'workout
     .filter((m) => m.key === 'weight')
     .sort((a, b) => a.date.localeCompare(b.date))
   const currentWeight = weights.at(-1)
+
+  // Великі числа карток рахуються плавно, а не стрибають на нове значення.
+  const animatedKcal = useAnimatedNumber(totals.kcal)
+  const animatedSteps = useAnimatedNumber(todaySteps)
+  const animatedWeight = useAnimatedNumber(currentWeight?.value ?? 0)
   const weekAgoWeight = weights.at(-2)
   const weightDelta =
     currentWeight && weekAgoWeight ? currentWeight.value - weekAgoWeight.value : null
@@ -63,7 +70,7 @@ export function HomeScreen({ onOpenTab }: { onOpenTab: (tab: 'ration' | 'workout
             раціон
           </span>
           <span className="headline num">
-            {num(totals.kcal)} <small>/ {num(profile.dailyKcal)} ккал</small>
+            {num(animatedKcal)} <small>/ {num(profile.dailyKcal)} ккал</small>
           </span>
           <span className="note">
             {filledCategories} із {categories.length} категорій заповнено
@@ -79,7 +86,7 @@ export function HomeScreen({ onOpenTab }: { onOpenTab: (tab: 'ration' | 'workout
             кроки
           </span>
           <span className="headline num">
-            {num(todaySteps)} <small>/ {num(profile.stepsGoal)}</small>
+            {num(animatedSteps)} <small>/ {num(profile.stepsGoal)}</small>
           </span>
           <span className="note">
             {todaySteps >= profile.stepsGoal ? (
@@ -127,7 +134,7 @@ export function HomeScreen({ onOpenTab }: { onOpenTab: (tab: 'ration' | 'workout
               вага
             </span>
             <span className="headline num">
-              {dec(currentWeight.value)} <small>кг</small>
+              {dec(animatedWeight)} <small>кг</small>
             </span>
             {weightDelta !== null && (
               <span className="trend">
@@ -146,10 +153,10 @@ export function HomeScreen({ onOpenTab }: { onOpenTab: (tab: 'ration' | 'workout
               const max = Math.max(...values)
               const height = max === min ? 50 : 25 + ((w.value - min) / (max - min)) * 55
               return (
-                <i
+                <AnimatedBar
                   key={w.id}
                   className={i === arr.length - 1 ? 'now' : ''}
-                  style={{ height: `${height}%` }}
+                  heightPct={height}
                 />
               )
             })}

@@ -292,7 +292,9 @@
   height: 100%;
   background: var(--accent-line);
   border-radius: 4px;
-  transition: width 0.25s ease;
+  /* Тривалість спільна з .bars i і useAnimatedNumber — 1s, щоб шкала,
+     стовпчики графіків і великі числа рухались синхронно. */
+  transition: width 1s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* ---------- вага, заміри ---------- */
@@ -314,6 +316,7 @@
   width: 5px;
   border-radius: 2px 2px 0 0;
   background: var(--ring-track);
+  transition: height 1s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .sparkline i.now {
   background: var(--spark-now);
@@ -514,13 +517,21 @@
   height: 120px;
   position: relative;
 }
+/*
+ * Лінія цілі мала --ink-faint на 40% і стояла в звичайному потоці — на
+ * стовпчиках близького зі значенням висоти вона просто ховалась під ними
+ * (пізніші flex-елементи того ж рівня стекування йдуть поверх). Тепер
+ * контрастний колір (--tab-active: чорний на світлій, білий на темній)
+ * і z-index виносять її над стовпчиками завжди.
+ */
 .bars .goal {
   position: absolute;
   left: 0;
   right: 0;
   height: 1px;
-  background: var(--ink-faint);
-  opacity: 0.4;
+  background: var(--tab-active);
+  opacity: 0.55;
+  z-index: 1;
 }
 .bars .goal::after {
   content: attr(data-g);
@@ -528,13 +539,16 @@
   right: 0;
   top: -14px;
   font-size: 9px;
-  color: var(--ink-faint);
+  font-weight: 700;
+  color: var(--tab-active);
 }
 .bars i {
   flex: 1;
   background: var(--bar-idle);
   border-radius: 3px 3px 0 0;
   min-width: 4px;
+  /* Стовпчик виростає з нуля, коли з'являється новий день (Кроки/Вправи). */
+  transition: height 1s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .bars i.hi {
   background: var(--accent-line);

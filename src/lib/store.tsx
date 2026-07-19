@@ -130,13 +130,20 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
       addSteps: async (date, value) => {
         if (isMock) {
-          setData((prev) => ({
-            ...prev,
-            steps: [
-              { id: uid(), date, steps: value },
-              ...prev.steps.filter((s) => s.date !== date),
-            ].sort((a, b) => b.date.localeCompare(a.date)),
-          }))
+          setData((prev) => {
+            // Той самий id при оновленні наявного дня — інакше React бачить
+            // «інший» елемент і CSS-анімація стовпчика на графіку не спрацює
+            // навіть для звичайної зміни значення. Так само робить бекенд:
+            // ON DUPLICATE KEY UPDATE не чіпає первинний ключ.
+            const existingId = prev.steps.find((s) => s.date === date)?.id
+            return {
+              ...prev,
+              steps: [
+                { id: existingId ?? uid(), date, steps: value },
+                ...prev.steps.filter((s) => s.date !== date),
+              ].sort((a, b) => b.date.localeCompare(a.date)),
+            }
+          })
           return
         }
         const { steps } = await api.setSteps(date, value)
@@ -145,13 +152,18 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
       addMeasurement: async (key, date, value) => {
         if (isMock) {
-          setData((prev) => ({
-            ...prev,
-            measurements: [
-              { id: uid(), key, date, value },
-              ...prev.measurements.filter((m) => !(m.key === key && m.date === date)),
-            ].sort((a, b) => b.date.localeCompare(a.date)),
-          }))
+          setData((prev) => {
+            const existingId = prev.measurements.find(
+              (m) => m.key === key && m.date === date,
+            )?.id
+            return {
+              ...prev,
+              measurements: [
+                { id: existingId ?? uid(), key, date, value },
+                ...prev.measurements.filter((m) => !(m.key === key && m.date === date)),
+              ].sort((a, b) => b.date.localeCompare(a.date)),
+            }
+          })
           return
         }
         const { measurements } = await api.setMeasurement(key, date, value)

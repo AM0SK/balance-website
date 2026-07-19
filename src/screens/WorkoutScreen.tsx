@@ -1,9 +1,11 @@
 import { useMemo, useState } from 'react'
+import { AnimatedBar } from '@/components/ui/AnimatedBar'
 import { Icon } from '@/components/ui/Icon'
 import { Modal } from '@/components/ui/Modal'
 import { dateWithWeekday, num } from '@/lib/format'
 import { useStore } from '@/lib/store'
 import { useSubmit } from '@/lib/useSubmit'
+import { useAnimatedNumber } from '@/lib/useAnimatedNumber'
 
 export function WorkoutScreen() {
   const { workouts, addWorkout, workoutTypes } = useStore()
@@ -16,6 +18,7 @@ export function WorkoutScreen() {
         : workouts.reduce((sum, w) => sum + w.burnedKcal, 0) / workouts.length,
     [workouts],
   )
+  const animatedAvgBurned = useAnimatedNumber(avgBurned)
 
   const chart = useMemo(() => workouts.slice(0, 12).reverse(), [workouts])
   const maxBurned = Math.max(1, ...chart.map((w) => w.burnedKcal))
@@ -27,7 +30,7 @@ export function WorkoutScreen() {
         <div className="statbig">
           <span className="lbl">спалено за тренування, в сер.</span>
           <span className="val num">
-            {num(avgBurned)} <u>ккал</u>
+            {num(animatedAvgBurned)} <u>ккал</u>
           </span>
         </div>
         <button className="btn-add" onClick={() => setAdding(true)}>
@@ -42,10 +45,10 @@ export function WorkoutScreen() {
           <p>Спалені калорії за сесію</p>
           <div className="bars">
             {chart.map((w) => (
-              <i
+              <AnimatedBar
                 key={w.id}
                 className={w.burnedKcal >= avgBurned ? 'hi' : ''}
-                style={{ height: `${(w.burnedKcal / maxBurned) * 100}%` }}
+                heightPct={(w.burnedKcal / maxBurned) * 100}
               />
             ))}
           </div>

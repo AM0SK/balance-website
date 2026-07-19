@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { buildCategoryViews, computeBudgets, dayTotals } from '@/lib/ration'
 import { dec, num, pct } from '@/lib/format'
 import { useStore } from '@/lib/store'
+import { useAnimatedNumber } from '@/lib/useAnimatedNumber'
 import type { Product } from '@/lib/types'
 import { QuantityModal } from './QuantityModal'
 
@@ -18,6 +19,8 @@ export function RationScreen() {
     [products, categories, consumed, budgets, profile.dailyKcal],
   )
   const totals = useMemo(() => dayTotals(products, consumed), [products, consumed])
+  const animatedProtein = useAnimatedNumber(totals.protein)
+  const animatedKcal = useAnimatedNumber(totals.kcal)
 
   const editingRow = editing
     ? views.flatMap((v) => v.rows).find((r) => r.product.id === editing.id)
@@ -29,7 +32,7 @@ export function RationScreen() {
       <div className="statbig">
         <span className="lbl">Білки</span>
         <span className="val num">
-          {dec(totals.protein)} <u>грам</u>
+          {dec(animatedProtein)} <u>грам</u>
         </span>
       </div>
 
@@ -37,7 +40,7 @@ export function RationScreen() {
         <div className="macrorow">
           <span className="k">Калорії</span>
           <span className="v num">
-            {num(totals.kcal)} / {num(profile.dailyKcal)} ккал
+            {num(animatedKcal)} / {num(profile.dailyKcal)} ккал
           </span>
         </div>
         <div className="progress-line">

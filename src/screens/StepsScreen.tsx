@@ -1,9 +1,11 @@
 import { useMemo, useState } from 'react'
+import { AnimatedBar } from '@/components/ui/AnimatedBar'
 import { Icon } from '@/components/ui/Icon'
 import { Modal } from '@/components/ui/Modal'
 import { dateShort, num, weekday } from '@/lib/format'
 import { useStore } from '@/lib/store'
 import { useSubmit } from '@/lib/useSubmit'
+import { useAnimatedNumber } from '@/lib/useAnimatedNumber'
 
 export function StepsScreen() {
   const { profile, steps, addSteps } = useStore()
@@ -13,6 +15,7 @@ export function StepsScreen() {
     const week = steps.slice(0, 7)
     return week.length === 0 ? 0 : week.reduce((s, e) => s + e.steps, 0) / week.length
   }, [steps])
+  const animatedWeeklyAvg = useAnimatedNumber(weeklyAvg)
 
   const chart = useMemo(() => steps.slice(0, 12).reverse(), [steps])
   const maxSteps = Math.max(profile.stepsGoal, ...chart.map((s) => s.steps))
@@ -23,7 +26,7 @@ export function StepsScreen() {
       <div className="statrow">
         <div className="statbig">
           <span className="lbl">середньотижневий показник</span>
-          <span className="val num">{num(weeklyAvg)}</span>
+          <span className="val num">{num(animatedWeeklyAvg)}</span>
         </div>
         <button className="btn-add" onClick={() => setAdding(true)}>
           <Icon name="plus" strokeWidth={2.6} />
@@ -42,10 +45,10 @@ export function StepsScreen() {
               style={{ bottom: `${(profile.stepsGoal / maxSteps) * 100}%` }}
             />
             {chart.map((s) => (
-              <i
+              <AnimatedBar
                 key={s.id}
                 className={s.steps >= profile.stepsGoal ? 'hi' : ''}
-                style={{ height: `${(s.steps / maxSteps) * 100}%` }}
+                heightPct={(s.steps / maxSteps) * 100}
               />
             ))}
           </div>
