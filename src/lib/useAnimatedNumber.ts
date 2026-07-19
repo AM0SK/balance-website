@@ -36,11 +36,24 @@ export function useAnimatedNumber(
   const replayRef = useRef(replayKey)
 
   useEffect(() => {
-    const isReplay = replayKey !== replayRef.current
+    const isFirst = !mountedRef.current
+    mountedRef.current = true
+
+    /*
+     * Перезапуск — або зміна replayKey (перехід у вкладку), або найперша
+     * поява компонента, якщо replayKey взагалі задано. Друга умова
+     * потрібна для кілець на Головній: при відкритті застосунку вони
+     * монтуються вже з актуальним лічильником активацій, тож зміни немає
+     * і без цього вони показували б кінцеве значення одразу, поки
+     * стовпчики графіків поруч виростали з нуля.
+     *
+     * Числа, що не передають replayKey, як і раніше не анімують першу
+     * появу — інакше весь екран стартував би з нулів.
+     */
+    const isReplay = replayKey !== replayRef.current || (isFirst && replayKey !== undefined)
     replayRef.current = replayKey
 
-    if (!mountedRef.current) {
-      mountedRef.current = true
+    if (isFirst && !isReplay) {
       currentRef.current = target
       setDisplay(target)
       return
