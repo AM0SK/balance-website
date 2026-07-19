@@ -34,6 +34,23 @@ export function Modal({
   const [closing, setClosing] = useState(false)
   const closeTimerRef = useRef<number | null>(null)
 
+  /*
+   * onClose тримаємо в ref, а не в залежностях. Батьки передають його
+   * стрілкою (onClose={() => setEditing(null)}), тобто нова функція на
+   * КОЖЕН рендер. Якби requestClose і ефект нижче залежали від неї
+   * напряму, ефект перезапускався б на кожен ререндер, а його cleanup
+   * щоразу робив clearTimeout таймера закриття.
+   *
+   * Саме це ламало бойовий сайт (локально з моком не відтворювалось):
+   * setConsumed іде в API → відповідь оновлює стор → зайвий ререндер
+   * якраз між setTimeout і його спрацюванням → таймер убито, onClose
+   * не викликається ніколи. Модалка лишалась змонтованою назавжди
+   * у стані is-closing — невидима, з pointer-events:none, і наступний
+   * клік по продукту вже нічого не відкривав.
+   */
+  const onCloseRef = useRef(onClose)
+  onCloseRef.current = onClose
+
   const requestClose = useCallback(() => {
     setClosing((already) => {
       if (already) return already
@@ -41,16 +58,17 @@ export function Modal({
        * Скрол і клікабельність сторінки під модалкою повертаються ОДРАЗУ,
        * не чекаючи EXIT_MS: підложка ще 500ms видима й з opacity-переходом,
        * але pointer-events:none у CSS (.is-closing) прибирає її з-під
-       * дотиків негайно. Якби чекали повного розмонтування — сторінка під
-       * блюром 500ms не реагувала б на скрол і тапи, що й виглядало як
-       * «зависання» після підтвердження.
+       * дотиків негайно.
        */
       document.body.style.overflow = prevOverflowRef.current
-      closeTimerRef.current = window.setTimeout(onClose, EXIT_MS)
+      closeTimerRef.current = window.setTimeout(() => onCloseRef.current(), EXIT_MS)
       return true
     })
-  }, [onClose])
+  }, [])
 
+  // Порожні залежності: ефект відпрацьовує рівно один раз на монтування
+  // і один раз на розмонтування, тож таймер закриття не може бути вбитий
+  // випадковим ререндером батька.
   useEffect(() => {
     restoreFocusTo.current = document.activeElement
     sheetRef.current?.focus()

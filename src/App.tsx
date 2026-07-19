@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { TabBar, type TabKey } from '@/components/layout/TabBar'
 import { TopBar } from '@/components/layout/TopBar'
 import { HomeScreen } from '@/screens/HomeScreen'
@@ -7,6 +7,7 @@ import { SettingsScreen } from '@/screens/SettingsScreen'
 import { StepsScreen } from '@/screens/StepsScreen'
 import { WorkoutScreen } from '@/screens/WorkoutScreen'
 import { useStore } from '@/lib/store'
+import { ScreenActivationContext } from '@/lib/screenActivation'
 
 const TITLES: Record<TabKey, string> = {
   home: 'Головна',
@@ -15,10 +16,23 @@ const TITLES: Record<TabKey, string> = {
   steps: 'Кроки',
 }
 
+const NO_ACTIVATIONS: Record<TabKey, number> = { home: 0, ration: 0, workout: 0, steps: 0 }
+
 export function App() {
   const [tab, setTab] = useState<TabKey>('home')
   const [settingsOpen, setSettingsOpen] = useState(false)
   const { status, errorMessage, retry } = useStore()
+
+  /*
+   * Скільки разів заходили в кожну вкладку. Вкладки не розмонтовуються
+   * при перемиканні (щоб кільця не губили стан анімації), тож графікам
+   * потрібен окремий сигнал «ми знову на цьому екрані», аби відіграти
+   * зростання стовпчиків заново.
+   */
+  const [activations, setActivations] = useState(NO_ACTIVATIONS)
+  useEffect(() => {
+    setActivations((prev) => ({ ...prev, [tab]: prev[tab] + 1 }))
+  }, [tab])
 
   if (status === 'loading') {
     return (
@@ -72,13 +86,15 @@ export function App() {
         шапкою: заголовок їде разом із контентом.
       */}
       {(Object.keys(TITLES) as TabKey[]).map((key) => (
-        <main className="stack" key={key} style={{ display: tab === key ? 'flex' : 'none' }}>
-          <TopBar title={TITLES[key]} onOpenSettings={() => setSettingsOpen(true)} />
-          {key === 'home' && <HomeScreen onOpenTab={setTab} />}
-          {key === 'ration' && <RationScreen />}
-          {key === 'workout' && <WorkoutScreen />}
-          {key === 'steps' && <StepsScreen />}
-        </main>
+        <ScreenActivationContext.Provider key={key} value={activations[key]}>
+          <main className="stack" style={{ display: tab === key ? 'flex' : 'none' }}>
+            <TopBar title={TITLES[key]} onOpenSettings={() => setSettingsOpen(true)} />
+            {key === 'home' && <HomeScreen onOpenTab={setTab} />}
+            {key === 'ration' && <RationScreen />}
+            {key === 'workout' && <WorkoutScreen />}
+            {key === 'steps' && <StepsScreen />}
+          </main>
+        </ScreenActivationContext.Provider>
       ))}
 
       <TabBar active={tab} onChange={setTab} />

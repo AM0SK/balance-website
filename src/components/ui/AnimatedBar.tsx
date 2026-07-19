@@ -1,37 +1,65 @@
 import { useEffect, useRef, useState } from 'react'
+import { useScreenActivation } from '@/lib/screenActivation'
 
 /**
  * Стовпчик графіка (Кроки, Вправи, спарклайн ваги), що виростає з нуля
- * при появі й плавно змінює висоту при оновленні значення.
+ * при появі, плавно змінює висоту при оновленні значення і програє
+ * анімацію заново при кожному вході у вкладку.
  *
  * Звичайного CSS transition на height недостатньо для нового стовпчика:
  * щойно змонтований елемент одразу малюється в кінцевому стані — браузеру
- * нема від чого анімувати. Тому перший рендер ставить 0%, а вже наступний
- * кадр (після монтування) виставляє ціль — тоді transition має «звідки».
- * Для стовпчика, що вже існував і просто змінив значення, це працює як
- * звичайний CSS transition: рахунок іде від висоти, яку браузер щойно
- * намалював, до нової.
+ * нема від чого анімувати. Тому спершу ставимо 0%, а вже наступний кадр
+ * виставляє ціль: тоді transition має «звідки».
+ *
+ * Скидання на 0 обов'язково йде з transition:none, інакше стовпчик
+ * спершу цілу секунду повзе ВНИЗ, і лише потім росте.
  */
 export function AnimatedBar({
   heightPct,
   className,
-  dataAttrs,
 }: {
   heightPct: number
   className?: string
-  dataAttrs?: Record<string, string>
 }) {
-  const [height, setHeight] = useState(0)
-  const mountedRef = useRef(false)
+  const activation = useScreenActivation()
+  const [state, setState] = useState({ height: 0, instant: true })
+  const firstRenderRef = useRef(true)
+  const activationRef = useRef(activation)
 
   useEffect(() => {
-    if (!mountedRef.current) {
-      mountedRef.current = true
-      const raf = requestAnimationFrame(() => setHeight(heightPct))
-      return () => cancelAnimationFrame(raf)
-    }
-    setHeight(heightPct)
-  }, [heightPct])
+    const isReplay = activation !== activationRef.current
+    activationRef.current = activation
+    const isFirst = firstRenderRef.current
+    firstRenderRef.current = false
 
-  return <i className={className} style={{ height: `${height}%` }} {...dataAttrs} />
+    // Поява або повернення у вкладку — ростемо з нуля.
+    if (isFirst || isReplay) {
+      setState({ height: 0, instant: true })
+
+      /*
+       * Два кадри, а не один: перший дає браузеру намалювати height:0
+       * з вимкненим переходом, другий вмикає перехід і ставить ціль.
+       * В одному кадрі React злив би обидва стани в один рендер
+       * і анімації знову не було б від чого стартувати.
+       */
+      let second = 0
+      const first = requestAnimationFrame(() => {
+        second = requestAnimationFrame(() => setState({ height: heightPct, instant: false }))
+      })
+      return () => {
+        cancelAnimationFrame(first)
+        cancelAnimationFrame(second)
+      }
+    }
+
+    // Звичайна зміна значення — плавний перехід від поточної висоти.
+    setState({ height: heightPct, instant: false })
+  }, [heightPct, activation])
+
+  return (
+    <i
+      className={className}
+      style={{ height: `${state.height}%`, transition: state.instant ? 'none' : undefined }}
+    />
+  )
 }

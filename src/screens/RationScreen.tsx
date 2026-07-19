@@ -94,6 +94,9 @@ export function RationScreen() {
 
       {editing && editingRow && (
         <QuantityModal
+          // Інший продукт — свіжий екземпляр модалки, а не переюзаний
+          // зі станом закриття від попереднього.
+          key={editing.id}
           row={editingRow}
           onClose={() => setEditing(null)}
           onConfirm={(units) => setConsumed(editing.id, units)}
