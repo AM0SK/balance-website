@@ -106,13 +106,18 @@ function AddWorkoutModal({
         <>
           <div className="field">
             <label htmlFor="w-type">Тип</label>
-            <select id="w-type" value={typeId} onChange={(e) => setTypeId(e.target.value)}>
-              {types.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.name}
-                </option>
-              ))}
-            </select>
+            <span className="select-wrap">
+              <select id="w-type" value={typeId} onChange={(e) => setTypeId(e.target.value)}>
+                {types.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.name}
+                  </option>
+                ))}
+              </select>
+              <span className="chevron">
+                <Icon name="chevronDown" />
+              </span>
+            </span>
           </div>
 
           <div className="field">

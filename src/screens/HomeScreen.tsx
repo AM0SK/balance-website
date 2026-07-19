@@ -87,7 +87,7 @@ export function HomeScreen({
     <>
       {profile.dailyKcal === DEFAULT_DAILY_KCAL && (
         <div className="kcal-nudge">
-          <span>встановіть свій ліміт калорій</span>
+          <span>Встановіть свій ліміт калорій</span>
           <button className="btn-add" onClick={onOpenSettings}>
             <Icon name="plus" strokeWidth={2.6} />
             Додати
