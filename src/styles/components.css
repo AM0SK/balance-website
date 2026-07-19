@@ -1051,7 +1051,16 @@
   -webkit-appearance: none;
   padding-right: 34px;
 }
+/*
+ * appearance: none обов'язковий. У WebView на Android поле дати
+ * малюється як menulist-button — із власним шевроном, який НЕ є
+ * ::-webkit-calendar-picker-indicator, тож ховання індикатора його не
+ * прибирало: поруч із нашим календарем лишалась друга, нативна стрілка.
+ * На Chrome desktop цього шеврона немає, тому там усе виглядало добре.
+ */
 .field input[type='date'] {
+  appearance: none;
+  -webkit-appearance: none;
   padding-right: 34px;
 }
 /*
@@ -1061,6 +1070,11 @@
  * відкриває пікер і без цього, це поведінка type="date" за замовчуванням.
  */
 .field input[type='date']::-webkit-calendar-picker-indicator {
+  display: none;
+}
+/* Решта нативної фурнітури, що трапляється в різних рушіях. */
+.field input[type='date']::-webkit-inner-spin-button,
+.field input[type='date']::-webkit-clear-button {
   display: none;
 }
 .select-wrap,
