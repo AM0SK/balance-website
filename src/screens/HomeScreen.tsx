@@ -159,7 +159,7 @@ export function HomeScreen({
       </button>
 
       {currentWeight && (
-        <div className="card">
+        <button className="card" onClick={onOpenSettings}>
           <div className="meta">
             <span className="icon-row">
               <Icon name="scale" />
@@ -193,10 +193,10 @@ export function HomeScreen({
               )
             })}
           </div>
-        </div>
+        </button>
       )}
 
-      <div className="card" style={{ alignItems: 'stretch' }}>
+      <button className="card" style={{ alignItems: 'stretch' }} onClick={onOpenSettings}>
         <div className="meta" style={{ width: '100%' }}>
           <span className="icon-row">
             <Icon name="ruler" />
@@ -222,7 +222,7 @@ export function HomeScreen({
             )
           })}
         </div>
-      </div>
+      </button>
     </>
   )
 }
