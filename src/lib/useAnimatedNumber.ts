@@ -18,14 +18,27 @@ const easeOutCubic = (t: number): number => 1 - (1 - t) ** 3
  * (currentRef), а не попередня ціль: якщо значення міняється ще раз
  * до завершення попередньої анімації, число продовжує рух з поточної
  * позиції, а не стрибає.
+ *
+ * replayKey — коли змінюється, анімація програється заново з нуля.
+ * Потрібен для кілець прогресу: вкладки не розмонтовуються при
+ * перемиканні, тож без цього сигналу кільце назавжди лишалось би
+ * «першим рендером» і не анімувалось при поверненні на екран.
  */
-export function useAnimatedNumber(target: number, durationMs = ANIMATION_MS): number {
+export function useAnimatedNumber(
+  target: number,
+  options: { durationMs?: number; replayKey?: number } = {},
+): number {
+  const { durationMs = ANIMATION_MS, replayKey } = options
   const [display, setDisplay] = useState(target)
   const currentRef = useRef(target)
   const rafRef = useRef<number | null>(null)
   const mountedRef = useRef(false)
+  const replayRef = useRef(replayKey)
 
   useEffect(() => {
+    const isReplay = replayKey !== replayRef.current
+    replayRef.current = replayKey
+
     if (!mountedRef.current) {
       mountedRef.current = true
       currentRef.current = target
@@ -33,7 +46,14 @@ export function useAnimatedNumber(target: number, durationMs = ANIMATION_MS): nu
       return
     }
 
-    if (reduceMotion() || currentRef.current === target) {
+    if (reduceMotion()) {
+      currentRef.current = target
+      setDisplay(target)
+      return
+    }
+
+    // Без перезапуску нема сенсу анімувати, якщо значення не змінилось.
+    if (!isReplay && currentRef.current === target) {
       currentRef.current = target
       setDisplay(target)
       return
@@ -41,7 +61,8 @@ export function useAnimatedNumber(target: number, durationMs = ANIMATION_MS): nu
 
     if (rafRef.current !== null) cancelAnimationFrame(rafRef.current)
 
-    const from = currentRef.current
+    // Повернення на екран — ведемо з нуля, як і стовпчики графіків.
+    const from = isReplay ? 0 : currentRef.current
     const delta = target - from
     const start = performance.now()
 
@@ -61,7 +82,7 @@ export function useAnimatedNumber(target: number, durationMs = ANIMATION_MS): nu
     return () => {
       if (rafRef.current !== null) cancelAnimationFrame(rafRef.current)
     }
-  }, [target, durationMs])
+  }, [target, durationMs, replayKey])
 
   return display
 }

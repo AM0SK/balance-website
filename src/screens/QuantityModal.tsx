@@ -39,14 +39,25 @@ export function QuantityModal({
             <b className="num">{dec(value, isPieces ? 0 : 0)}</b> (макс: {num(limit)} {unitLabel})
           </p>
 
+          {/*
+            step="any", а крок застосовуємо вручну в onChange.
+            Причина: HTML прив'язує range до сітки min + n*step, тож коли
+            ліміт не кратний кроку (напр. max=53 при step=5), максимум
+            фізично недосяжний — повзунок упирається в 50 і ніколи не
+            доходить до кінця, навіть коли натиснути «100%».
+          */}
           <input
             className="slider"
             type="range"
             min={0}
             max={Math.max(limit, 1)}
-            step={step}
+            step="any"
             value={value}
-            onChange={(e) => setValue(Number(e.target.value))}
+            onChange={(e) => {
+              const raw = Number(e.target.value)
+              // Округлення до кроку, але ліміт завжди досяжний точно.
+              setValue(Math.min(limit, Math.round(raw / step) * step))
+            }}
             style={{ ['--pct' as string]: `${share}%` }}
             aria-label={`Кількість, ${unitLabel}`}
           />
