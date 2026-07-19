@@ -1068,11 +1068,15 @@
   width: 100%;
   height: 100%;
 }
+/*
+ * Лише padding-right, без своєї margin на ::-webkit-calendar-picker-indicator:
+ * від'ємний margin на цьому індикаторі в мобільному WebView (Telegram,
+ * Android) ламав рендер нативної іконки календаря — замість неї
+ * малювалась спрощена стрілка. У звичайному Chrome desktop цього не
+ * було видно, спливло тільки на бойовому.
+ */
 .field input[type='date'] {
-  padding-right: 20px;
-}
-.field input[type='date']::-webkit-calendar-picker-indicator {
-  margin-right: -6px;
+  padding-right: 30px;
 }
 .field input:focus-visible,
 .field select:focus-visible {
