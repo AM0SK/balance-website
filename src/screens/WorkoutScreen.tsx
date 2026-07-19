@@ -28,7 +28,7 @@ export function WorkoutScreen() {
       {/* Кнопка в один рівень із числом, заголовок — у шапці. */}
       <div className="statrow">
         <div className="statbig">
-          <span className="lbl">спалено за тренування, в сер.</span>
+          <span className="lbl">спалено в середньому</span>
           <span className="val num">
             {num(animatedAvgBurned)} <u>ккал</u>
           </span>

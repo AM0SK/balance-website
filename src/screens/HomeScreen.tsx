@@ -56,10 +56,25 @@ export function HomeScreen({ onOpenTab }: { onOpenTab: (tab: 'ration' | 'workout
   const weightDelta =
     currentWeight && weekAgoWeight ? currentWeight.value - weekAgoWeight.value : null
 
-  const latestByKey = (key: string) =>
-    measurements
-      .filter((m) => m.key === key)
-      .sort((a, b) => b.date.localeCompare(a.date))
+  /*
+   * Показуємо всі заміри, для яких є записи, а не фіксовану пару.
+   * Раніше тут стояло ['waist', 'hips'], і картка лишалася порожньою в
+   * користувача, який завів, скажімо, лише обхват плеча чи грудей.
+   * Вага має власну картку вище, тому її пропускаємо.
+   */
+  const filledMeasures = useMemo(
+    () =>
+      measurementKinds
+        .filter((meta) => meta.key !== 'weight')
+        .map((meta) => {
+          const history = measurements
+            .filter((m) => m.key === meta.key)
+            .sort((a, b) => b.date.localeCompare(a.date))
+          return { key: meta.key, meta, current: history[0], prev: history[1] }
+        })
+        .filter((row) => row.current !== undefined),
+    [measurements, measurementKinds],
+  )
 
   return (
     <>
@@ -137,7 +152,7 @@ export function HomeScreen({ onOpenTab }: { onOpenTab: (tab: 'ration' | 'workout
               {dec(animatedWeight)} <small>кг</small>
             </span>
             {weightDelta !== null && (
-              <span className="trend">
+              <span className={`trend${weightDelta !== 0 ? ' changed' : ''}`}>
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" aria-hidden="true">
                   <path d={weightDelta <= 0 ? 'M6 9l6 6 6-6' : 'M6 15l6-6 6 6'} />
                 </svg>
@@ -170,12 +185,10 @@ export function HomeScreen({ onOpenTab }: { onOpenTab: (tab: 'ration' | 'workout
             <Icon name="ruler" />
             заміри тіла
           </span>
-          {['waist', 'hips'].map((key) => {
-            const history = latestByKey(key)
-            const current = history[0]
-            const prev = history[1]
-            if (!current) return null
-            const meta = measurementKinds.find((m) => m.key === key)
+          {filledMeasures.length === 0 && (
+            <span className="note">ще немає замірів — додайте їх у налаштуваннях</span>
+          )}
+          {filledMeasures.map(({ key, meta, current, prev }) => {
             const delta = prev ? current.value - prev.value : 0
             return (
               <div className="measure-row" key={key} style={{ padding: '8px 0' }}>

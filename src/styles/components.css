@@ -306,6 +306,10 @@
   font-weight: 700;
   color: var(--plum);
 }
+/* Вага зрушила з місця — підсвічуємо тим самим червоним, що й графіки. */
+.trend.changed {
+  color: var(--accent-line);
+}
 .sparkline {
   display: flex;
   align-items: flex-end;
@@ -319,7 +323,7 @@
   transition: height 1s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .sparkline i.now {
-  background: var(--spark-now);
+  background: var(--accent-line);
 }
 
 .measure-row {
@@ -491,7 +495,7 @@
   text-decoration: none;
   font-size: var(--t-h3-size);
   font-weight: var(--t-body1-weight);
-  color: var(--ink-faint);
+  color: inherit;
 }
 
 .chartcard {
@@ -622,6 +626,10 @@
   font-weight: var(--t-body2-weight);
   color: var(--ink-faint);
 }
+/* Незворотна дія — тим самим червоним, що й графіки. */
+.plainrows .sub.danger {
+  color: var(--accent-line);
+}
 
 /* ---------- кнопки ---------- */
 .btn {
@@ -651,6 +659,12 @@
   border-color: var(--line);
   color: var(--ink);
 }
+.btn-danger {
+  background: var(--accent-line);
+  color: #fff;
+  box-shadow: var(--btn-shadow);
+  border-color: transparent;
+}
 /*
  * Вимкнена кнопка. Раніше було просто opacity, і градієнтна кнопка
  * виглядала не «поки недоступна», а «зламана»: білий текст на 45%
@@ -659,7 +673,8 @@
 .btn:disabled {
   cursor: not-allowed;
 }
-.btn-grad:disabled {
+.btn-grad:disabled,
+.btn-danger:disabled {
   background: var(--fill-tint);
   color: var(--ink-faint);
   border-color: var(--line);
@@ -865,6 +880,10 @@
   font-weight: var(--t-body2-weight);
   color: var(--ink-faint);
   margin-bottom: 10px;
+}
+/* Підпис у діалозі підтвердження: далі одразу кнопки, потрібен більший відступ. */
+.modal-hint.spaced {
+  margin-bottom: 18px;
 }
 .modal-pill {
   background: var(--fill-tint);

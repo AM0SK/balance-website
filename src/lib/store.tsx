@@ -31,6 +31,7 @@ interface Store extends Bootstrap {
   addWorkout: (typeId: string, date: string, burnedKcal: number) => Promise<void>
   addSteps: (date: string, steps: number) => Promise<void>
   addMeasurement: (key: string, date: string, value: number) => Promise<void>
+  resetProgress: () => Promise<void>
 }
 
 const StoreContext = createContext<Store | null>(null)
@@ -168,6 +169,17 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         }
         const { measurements } = await api.setMeasurement(key, date, value)
         setData((prev) => ({ ...prev, measurements }))
+      },
+
+      resetProgress: async () => {
+        // Профіль і довідники не чіпаємо — зміну видно одразу, без перезавантаження.
+        const empty = { consumed: {}, workouts: [], steps: [], measurements: [] }
+        if (isMock) {
+          setData((prev) => ({ ...prev, ...empty }))
+          return
+        }
+        const fresh = await api.resetProgress()
+        setData((prev) => ({ ...prev, ...fresh }))
       },
     }),
     [data, status, errorMessage, isMock, load],

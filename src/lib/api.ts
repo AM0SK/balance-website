@@ -110,4 +110,12 @@ export const api = {
     value: number,
   ): Promise<{ measurements: Measurement[] }> =>
     send('PUT', '/measurements', { key, day, value }),
+
+  /** Чистить зібрану статистику. Профіль і дані з Telegram лишаються. */
+  resetProgress: (): Promise<{
+    consumed: Consumed
+    workouts: Workout[]
+    steps: StepsEntry[]
+    measurements: Measurement[]
+  }> => send('POST', '/reset-progress', {}),
 }

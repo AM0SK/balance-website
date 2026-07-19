@@ -206,6 +206,31 @@ switch ("$method /$path") {
         sendJson(['ok' => true, 'measurements' => fetchMeasurements($pdo, $userId)]);
 
     // -----------------------------------------------------------------------
+    // Скидання прогресу: чистимо тільки зібрану статистику. Рядок `users`
+    // лишається недоторканим — там дані з Telegram (id, ім'я, аватар) і цілі,
+    // які користувач налаштував сам. Це не «видалення акаунта».
+    // -----------------------------------------------------------------------
+    case 'POST /reset-progress':
+        $pdo->beginTransaction();
+        try {
+            foreach (['consumption', 'workouts', 'steps', 'measurements'] as $table) {
+                $pdo->prepare("DELETE FROM $table WHERE user_id = ?")->execute([$userId]);
+            }
+            $pdo->commit();
+        } catch (Throwable $e) {
+            $pdo->rollBack();
+            throw $e;
+        }
+
+        sendJson([
+            'ok'           => true,
+            'consumed'     => fetchConsumed($pdo, $userId, $today),
+            'workouts'     => fetchWorkouts($pdo, $userId),
+            'steps'        => fetchSteps($pdo, $userId),
+            'measurements' => fetchMeasurements($pdo, $userId),
+        ]);
+
+    // -----------------------------------------------------------------------
     default:
         fail('Невідомий маршрут: ' . $method . ' /' . $path, 404);
 }

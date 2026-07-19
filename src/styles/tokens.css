@@ -88,7 +88,6 @@
   --tab-active: #020202;
   --ring-track: #EBEAF0;
   --bar-idle: #E7E6EE;
-  --spark-now: #020202;
 
   --grad: linear-gradient(135deg, #3D3A54, #020202);          /* заливка кнопок, аватар */
   --grad-line: linear-gradient(90deg, #020202, #4A4667);      /* шкали, слайдер: темне ліворуч */
@@ -139,7 +138,6 @@
     --tab-active: #FFFFFF;
     --ring-track: rgba(255,255,255,.14);
     --bar-idle: rgba(255,255,255,.12);
-    --spark-now: #EDEAF5;
 
     --grad: linear-gradient(135deg, #58547A, #020202);
     --grad-line: linear-gradient(90deg, #6B6592, #EDEAF5);
@@ -188,7 +186,6 @@
   --tab-active: #FFFFFF;
   --ring-track: rgba(255,255,255,.14);
   --bar-idle: rgba(255,255,255,.12);
-  --spark-now: #EDEAF5;
 
   --grad: linear-gradient(135deg, #58547A, #020202);
   --grad-line: linear-gradient(90deg, #6B6592, #EDEAF5);
@@ -236,7 +233,6 @@
   --tab-active: #020202;
   --ring-track: #EBEAF0;
   --bar-idle: #E7E6EE;
-  --spark-now: #020202;
 
   --grad: linear-gradient(135deg, #3D3A54, #020202);
   --grad-line: linear-gradient(90deg, #020202, #4A4667);

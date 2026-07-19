@@ -7,7 +7,7 @@ import { useStore } from '@/lib/store'
 import { useSubmit } from '@/lib/useSubmit'
 import { useTheme, type ThemePreference } from '@/lib/theme'
 
-type Editing = { kind: 'kcal' } | { kind: 'measure'; key: string } | null
+type Editing = { kind: 'kcal' } | { kind: 'measure'; key: string } | { kind: 'reset' } | null
 
 const THEME_OPTIONS: { value: ThemePreference; label: string }[] = [
   { value: 'auto', label: 'Авто' },
@@ -122,6 +122,10 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
               <span className="name">Мова</span>
               <span className="sub">українська</span>
             </div>
+            <button className="prow2" onClick={() => setEditing({ kind: 'reset' })}>
+              <span className="name">Скинути прогрес профілю</span>
+              <span className="sub danger">скинути</span>
+            </button>
           </div>
         </div>
       </div>
@@ -130,6 +134,7 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
       {editing?.kind === 'measure' && (
         <MeasureModal measureKey={editing.key} onClose={() => setEditing(null)} />
       )}
+      {editing?.kind === 'reset' && <ResetModal onClose={() => setEditing(null)} />}
     </>
   )
 }
@@ -189,6 +194,44 @@ function KcalModal({ onClose }: { onClose: () => void }) {
               }
             >
               {saving ? 'Збереження…' : 'Зберегти'}
+            </button>
+          </div>
+        </>
+      )}
+    </Modal>
+  )
+}
+
+function ResetModal({ onClose }: { onClose: () => void }) {
+  const { resetProgress } = useStore()
+  const { saving, error, submit } = useSubmit()
+
+  return (
+    <Modal title="Дійсно бажаєте скинути прогрес профілю?" onClose={onClose}>
+      {(close) => (
+        <>
+          <p className="modal-hint spaced">
+            Накопичений прогрес за весь час буде безповоротно втрачено: вага, заміри тіла,
+            тренування, кроки та раціон.
+          </p>
+
+          {error && <p className="form-error">{error}</p>}
+
+          <div className="btn-row">
+            <button className="btn btn-outline" onClick={close} disabled={saving}>
+              Скасувати
+            </button>
+            <button
+              className="btn btn-danger"
+              disabled={saving}
+              onClick={() =>
+                void submit(async () => {
+                  await resetProgress()
+                  close()
+                })
+              }
+            >
+              {saving ? 'Скидання…' : 'Підтвердити'}
             </button>
           </div>
         </>
