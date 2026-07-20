@@ -761,10 +761,19 @@
 /* ---------- таб-бар: без заливки-пігулки ---------- */
 .tabbar {
   position: fixed;
-  left: 14px;
-  right: 14px;
+  /*
+   * 14px (край .app, --screen-pad-x) + 18px (--card-pad) — межі таб-бару
+   * рівно на лінії внутрішнього контенту карток, а не їхнього зовнішнього
+   * краю. Раніше таб-бар був вужчий за екран так само, як картки,
+   * тепер він вужчий за картки ще на їхній padding з обох боків.
+   */
+  left: 32px;
+  right: 32px;
   bottom: max(14px, env(safe-area-inset-bottom));
-  max-width: 452px;
+  /* 452px (стара межа, край карток) − 36px (їхній новий padding з обох
+     боків) — інакше на широких екранах left/right:32px нічого не давали б,
+     бо ширину вже обмежував max-width зі старої геометрії. */
+  max-width: 416px;
   margin: 0 auto;
   background: var(--tabbar-bg);
   border-radius: var(--radius-pill);
