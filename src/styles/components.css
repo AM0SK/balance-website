@@ -386,26 +386,32 @@
   overflow: hidden;
 }
 /* Шапку заливає колір категорії (--cat-color задається в RationScreen),
-   текст на ній — майже чорний в обох темах. Чипа з літерою більше немає. */
+   текст на ній — --cathead-ink (світла тема біла, темна майже чорна).
+   Чипа з літерою більше немає.
+   Висота шапки дорівнює висоті рядка продукту (11px паддингів + два рядки
+   тексту + межа = 59px), тому тут задана явно. */
 .cathead {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 14px 15px 12px;
+  padding: 0 15px;
+  min-height: 59px;
   background: var(--cat-color);
-  color: var(--near-black);
+  color: var(--cathead-ink);
 }
-.cathead .cname {
+.cathead .cname,
+.cathead .csum {
   font-size: var(--t-h3-size);
   font-weight: var(--t-h3-weight);
   letter-spacing: -0.01em;
+  color: inherit;
+  margin: 0; /* h2 має власні браузерні відступи — вони ламали висоту */
+}
+.cathead .cname {
   flex: 1;
   min-width: 0;
 }
 .cathead .csum {
-  font-size: var(--t-body2-size);
-  font-weight: var(--t-body2-weight);
-  color: rgb(2 2 2 / 0.7);
   white-space: nowrap;
 }
 
