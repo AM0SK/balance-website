@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, type CSSProperties } from 'react'
 import { buildCategoryViews, computeBudgets, dayTotals } from '@/lib/ration'
 import { dec, num, pct } from '@/lib/format'
 import { useStore } from '@/lib/store'
@@ -60,11 +60,13 @@ export function RationScreen() {
       </div>
 
       {views.map((view) => (
-        <section className="catcard" key={view.category.key}>
+        // Колір категорії тепер заливає шапку картки замість чипа з літерою.
+        <section
+          className="catcard"
+          key={view.category.key}
+          style={{ '--cat-color': `var(${view.category.colorVar})` } as CSSProperties}
+        >
           <div className="cathead">
-            <div className="chip" style={{ background: `var(${view.category.colorVar})` }}>
-              {view.category.letter}
-            </div>
             <h2 className="cname">{view.category.name}</h2>
             <span className="csum num">
               {view.startedCount} / {view.rows.length}
