@@ -23,7 +23,12 @@ export function TopBar({
         ) : (
           <div className="avatar" />
         )}
-        <button className="gearbtn" onClick={onOpenSettings} aria-label="Налаштування">
+        <button
+          className="gearbtn"
+          onClick={onOpenSettings}
+          aria-label="Налаштування"
+          data-tour="settings"
+        >
           <Icon name="gear" />
         </button>
       </div>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { TabBar, type TabKey } from '@/components/layout/TabBar'
 import { TopBar } from '@/components/layout/TopBar'
 import { HomeScreen } from '@/screens/HomeScreen'
@@ -7,6 +7,7 @@ import { SettingsScreen } from '@/screens/SettingsScreen'
 import { StepsScreen } from '@/screens/StepsScreen'
 import { WorkoutScreen } from '@/screens/WorkoutScreen'
 import { useStore } from '@/lib/store'
+import { useTour } from '@/lib/tour'
 import { ScreenActivationContext } from '@/lib/screenActivation'
 
 const TITLES: Record<TabKey, string> = {
@@ -22,6 +23,35 @@ export function App() {
   const [tab, setTab] = useState<TabKey>('home')
   const [settingsOpen, setSettingsOpen] = useState(false)
   const { status, errorMessage, retry } = useStore()
+  const tour = useTour()
+
+  /*
+   * Кроки навчання показують реальні екрани, тож App веде користувача сам:
+   * крок каже, яка сцена йому потрібна, а перемикати вкладку й відкривати
+   * Налаштування може тільки той, хто цим станом володіє.
+   *
+   * Вихід із навчання завжди повертає у вкладку — інакше підказка
+   * «навчання завжди тут» показувала б на шестерню, якої на екрані
+   * Налаштувань немає (там на її місці хрестик).
+   */
+  const tourWasOn = useRef(false)
+  useEffect(() => {
+    const scene = tour.step?.scene
+    if (!scene) {
+      if (tourWasOn.current) {
+        tourWasOn.current = false
+        setSettingsOpen(false)
+      }
+      return
+    }
+    tourWasOn.current = true
+    if (scene.kind === 'settings') {
+      setSettingsOpen(true)
+    } else {
+      setSettingsOpen(false)
+      setTab(scene.tab)
+    }
+  }, [tour.step])
 
   /*
    * Скільки разів заходили в кожну вкладку. Вкладки не розмонтовуються

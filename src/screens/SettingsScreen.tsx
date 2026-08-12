@@ -7,6 +7,7 @@ import { dec, num } from '@/lib/format'
 import { useStore } from '@/lib/store'
 import { useSubmit } from '@/lib/useSubmit'
 import { useTheme, type ThemePreference } from '@/lib/theme'
+import { useTour } from '@/lib/tour'
 
 type Editing = { kind: 'kcal' } | { kind: 'measure'; key: string } | { kind: 'reset' } | null
 
@@ -19,6 +20,7 @@ const THEME_OPTIONS: { value: ThemePreference; label: string }[] = [
 export function SettingsScreen({ onClose }: { onClose: () => void }) {
   const { profile, measurements, measurementKinds } = useStore()
   const { preference, setPreference } = useTheme()
+  const { start } = useTour()
   const [editing, setEditing] = useState<Editing>(null)
 
   const latest = (key: string) =>
@@ -56,7 +58,11 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
         <div>
           <div className="sectionlbl">Ціль</div>
           <div className="plainrows">
-            <button className="prow2" onClick={() => setEditing({ kind: 'kcal' })}>
+            <button
+              className="prow2"
+              onClick={() => setEditing({ kind: 'kcal' })}
+              data-tour="kcal"
+            >
               <span className="name">
                 <span className="edit-icon">
                   <Icon name="edit" />
@@ -70,7 +76,7 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
 
         <div>
           <div className="sectionlbl">Заміри тіла</div>
-          <div className="measures-card">
+          <div className="measures-card" data-tour="measures">
             {measurementKinds.map((m) => {
               const value = latest(m.key)
               return (
@@ -123,6 +129,11 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
               <span className="name">Мова</span>
               <span className="sub">українська</span>
             </div>
+            {/* Навчання саме закриє Налаштування — його перший крок живе на Головній. */}
+            <button className="prow2" onClick={start}>
+              <span className="name">Гід по застосунку</span>
+              <span className="sub action">пройти</span>
+            </button>
             <button className="prow2" onClick={() => setEditing({ kind: 'reset' })}>
               <span className="name">Скинути прогрес профілю</span>
               <span className="sub danger">скинути</span>

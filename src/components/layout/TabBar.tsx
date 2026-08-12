@@ -25,6 +25,7 @@ export function TabBar({
           className={`tab${active === tab.key ? ' active' : ''}`}
           onClick={() => onChange(tab.key)}
           aria-current={active === tab.key ? 'page' : undefined}
+          data-tour={`tab-${tab.key}`}
         >
           <Icon name={tab.icon} />
           {tab.label}

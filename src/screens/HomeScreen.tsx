@@ -95,7 +95,7 @@ export function HomeScreen({
         </div>
       )}
 
-      <button className="card" onClick={() => onOpenTab('ration')}>
+      <button className="card" onClick={() => onOpenTab('ration')} data-tour="home-card">
         <span className="meta">
           <span className="icon-row">
             <Icon name="ration" />

@@ -641,6 +641,11 @@
 .plainrows .sub.danger {
   color: var(--accent-line);
 }
+/* Рядок веде кудись, а не показує значення — читається як посилання. */
+.plainrows .sub.action {
+  color: var(--plum);
+  font-weight: 700;
+}
 
 /* ---------- кнопки ---------- */
 .btn {
@@ -1215,6 +1220,163 @@
   color: var(--ink-faint);
   font-size: var(--t-body2-size);
   padding: 26px 10px;
+}
+
+/* ---------- навчання (тур по застосунку) ---------- */
+/*
+ * Затемнення малює не сам оверлей, а тінь «вікна» підсвітки: величезний
+ * spread закриває весь екран, а прямокутник лишається чистим. Так виріз
+ * не потребує ні маски, ні другого шару, і плавно їде між кроками.
+ */
+.tour-overlay {
+  position: fixed;
+  inset: 0;
+  /* Вище за таб-бар (20) і за модалки (30): під час навчання нічого
+     не має опинитись поверх підсвітки. */
+  z-index: 40;
+  animation: tour-in 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+/* Кроку без цілі підсвічувати нічого — затемнюємо суцільно. */
+.tour-overlay.is-center {
+  background: var(--tour-veil);
+}
+.tour-hole {
+  position: absolute;
+  box-shadow: 0 0 0 100vmax var(--tour-veil);
+  /* Дотики по підсвіченому елементу перехоплює оверлей: крок гортається
+     кнопкою «Далі», а не спробою натиснути ціль. */
+  pointer-events: none;
+  transition:
+    top 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    left 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    width 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    height 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes tour-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.tour-card {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(100% - 28px, 420px);
+  padding: 18px 18px 16px;
+  border-radius: var(--radius-card);
+  background: var(--modal-sheet-bg);
+  -webkit-backdrop-filter: blur(var(--modal-sheet-blur));
+  backdrop-filter: blur(var(--modal-sheet-blur));
+  box-shadow: var(--card-shadow);
+}
+.tour-card.place-center {
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+.tour-step {
+  font-size: var(--t-label-size);
+  font-weight: var(--t-label-weight);
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+}
+.tour-title {
+  font-size: var(--t-h3-size);
+  font-weight: var(--t-h3-weight);
+  letter-spacing: -0.01em;
+  margin: 0 0 6px;
+  /* Місце під хрестик у правому куті. */
+  padding-right: 32px;
+}
+.tour-body {
+  margin: 0 0 16px;
+  font-size: var(--t-body2-size);
+  font-weight: var(--t-body2-weight);
+  line-height: 1.45;
+  color: var(--ink-soft);
+}
+.tour-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: var(--ink-faint);
+}
+.tour-close svg {
+  width: 14px;
+  height: 14px;
+}
+.tour-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.tour-dots {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-right: auto;
+}
+.tour-dots i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--bar-idle);
+}
+.tour-dots i.on {
+  background: var(--accent-line);
+}
+.tour-back {
+  font-size: var(--t-button-size);
+  font-weight: var(--t-button-weight);
+  color: var(--ink-faint);
+  padding: 0 4px;
+}
+/* .btn розтягується на всю ширину — тут кнопка стоїть у рядку. */
+.tour-next {
+  width: auto;
+  padding: 0 20px;
+}
+
+/* Бульбашка-нагадування біля шестерні; живе 5 секунд і зникає сама. */
+.tour-hint {
+  position: fixed;
+  z-index: 25;
+  max-width: min(260px, calc(100% - 20px));
+  padding: 9px 12px;
+  border-radius: 12px;
+  background: var(--tip-bg);
+  color: var(--tip-ink);
+  font-size: var(--t-body2-size);
+  font-weight: 600;
+  line-height: 1.35;
+  box-shadow: var(--card-shadow);
+  animation: tour-hint-in 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+/* Хвостик до шестерні: той самий фон, повернутий на 45°. */
+.tour-hint::before {
+  content: '';
+  position: absolute;
+  top: -4px;
+  right: 13px;
+  width: 10px;
+  height: 10px;
+  background: inherit;
+  border-radius: 2px;
+  transform: rotate(45deg);
+}
+@keyframes tour-hint-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
 }
 
 /* Клавіатурна навігація має бути видимою скрізь. */

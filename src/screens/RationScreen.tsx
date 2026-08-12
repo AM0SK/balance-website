@@ -59,25 +59,31 @@ export function RationScreen() {
         </span>
       </div>
 
-      {views.map((view) => (
+      {views.map((view, i) => (
         // Колір категорії тепер заливає шапку картки замість чипа з літерою.
         <section
           className="catcard"
           key={view.category.key}
           style={{ '--cat-color': `var(${view.category.colorVar})` } as CSSProperties}
         >
-          <div className="cathead">
+          {/*
+            Навчання підсвічує шапку першої категорії разом з її першим
+            рядком: цілу картку підсвічувати марно — вона заввишки майже
+            з екран, і поясненню вже нема куди стати.
+          */}
+          <div className="cathead" data-tour={i === 0 ? 'ration-head' : undefined}>
             <h2 className="cname">{view.category.name}</h2>
             <span className="csum num">
               {view.startedCount} / {view.rows.length}
             </span>
           </div>
 
-          {view.rows.map((row) => (
+          {view.rows.map((row, j) => (
             <button
               className={`prow${row.state === 'default' ? '' : ` ${row.state}`}`}
               key={row.product.id}
               onClick={() => setEditing(row.product)}
+              data-tour={i === 0 && j === 0 ? 'ration-row' : undefined}
             >
               <span className="pmeta">
                 <span className="pname">{row.product.name}</span>
