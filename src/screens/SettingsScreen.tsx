@@ -69,7 +69,11 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
                 </span>
                 Денний ліміт калорій
               </span>
-              <span className="sub num">{num(profile.dailyKcal)} ккал</span>
+              {/* Те саме накреслення, що й у замірах: жирне число, тьмяна одиниця. */}
+              <span className="val">
+                <b className="num">{num(profile.dailyKcal)}</b>
+                <span>ккал</span>
+              </span>
             </button>
           </div>
         </div>

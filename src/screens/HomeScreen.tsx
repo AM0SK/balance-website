@@ -111,7 +111,7 @@ export function HomeScreen({
         <Ring percent={pct(totals.kcal, profile.dailyKcal)} />
       </button>
 
-      <button className="card" onClick={() => onOpenTab('steps')}>
+      <button className="card" onClick={() => onOpenTab('steps')} data-tour="home-card">
         <span className="meta">
           <span className="icon-row">
             <Icon name="steps" />
@@ -133,7 +133,12 @@ export function HomeScreen({
         <Ring percent={pct(todaySteps, profile.stepsGoal)} />
       </button>
 
-      <button className="card" onClick={() => onOpenTab('workout')}>
+      {/*
+        Навчання підсвічує три картки-кільця однією рамкою (data-tour
+        повторюється навмисно): на останньому кроці розмова саме про те,
+        що Головна збирає всі показники разом.
+      */}
+      <button className="card" onClick={() => onOpenTab('workout')} data-tour="home-card">
         <span className="meta">
           <span className="icon-row">
             <Icon name="workout" />

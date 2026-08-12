@@ -25,6 +25,8 @@ const PAD = 8
 const GAP = 14
 /** Скільки місця треба картці з поясненням, щоб стати збоку від підсвітки. */
 const CARD_ROOM = 210
+/** Куди підтягуємо ціль, коли доводиться прокручувати екран. */
+const TOP_MARGIN = 76
 
 function visibleTargets(target: string | string[]): HTMLElement[] {
   const names = Array.isArray(target) ? target : [target]
@@ -61,15 +63,26 @@ function insideFixed(el: HTMLElement): boolean {
   return false
 }
 
+/** Найближчий предок, який справді скролиться — у застосунку це .stack. */
+function scrollableParent(el: HTMLElement): HTMLElement | null {
+  for (let node = el.parentElement; node; node = node.parentElement) {
+    const overflow = getComputedStyle(node).overflowY
+    if ((overflow === 'auto' || overflow === 'scroll') && node.scrollHeight > node.clientHeight) {
+      return node
+    }
+  }
+  return null
+}
+
+const roomBelow = (box: Anchor): number =>
+  window.innerHeight - (box.top + box.height + PAD + GAP)
+const roomAbove = (box: Anchor): number => box.top - PAD - GAP
+
 /**
  * Прямокутник цілі. Поки сцена перемикається, цілі ще немає в DOM —
  * чекаємо її по кадрах, а не одноразовою спробою.
  */
-function useAnchor(
-  target: string | string[] | undefined,
-  active: boolean,
-  scroll = true,
-): Anchor | null {
+function useAnchor(target: string | string[] | undefined, active: boolean): Anchor | null {
   const [anchor, setAnchor] = useState<Anchor | null>(null)
 
   useEffect(() => {
@@ -84,12 +97,17 @@ function useAnchor(
     const tick = () => {
       const els = visibleTargets(target)
       if (els.length) {
-        const box = els[0].getBoundingClientRect()
-        const offscreen = box.top < 70 || box.bottom > window.innerHeight - 110
+        const box = boundingBox(els)
+        const offscreen = box.top < 70 || box.top + box.height > window.innerHeight - 110
+        // Висока ціль (кілька карток) може стояти на екрані повністю, але
+        // не лишати місця поясненню — тоді теж підтягуємо її вгору.
+        const cramped = roomBelow(box) < CARD_ROOM && roomAbove(box) < CARD_ROOM
         // Елемент у fixed-контейнері (таб-бар) уже на екрані — скрол
         // лише смикнув би вміст під ним.
-        if (scroll && offscreen && !insideFixed(els[0])) {
-          els[0].scrollIntoView({ block: 'center', behavior: 'auto' })
+        if ((offscreen || cramped) && !insideFixed(els[0])) {
+          const scroller = scrollableParent(els[0])
+          // Ціль стає під шапку, картка з поясненням — під неї.
+          if (scroller) scroller.scrollTop += box.top - TOP_MARGIN
         }
         setAnchor(boundingBox(els))
         return
@@ -110,7 +128,7 @@ function useAnchor(
       cancelAnimationFrame(raf)
       window.removeEventListener('resize', remeasure)
     }
-  }, [target, active, scroll])
+  }, [target, active])
 
   return anchor
 }
@@ -136,13 +154,11 @@ function TourOverlay() {
    * собою кілька пікселів, і картка поїхала б за межі екрана.
    * Не влазить ніде (ціль майже на весь екран) — кладемо по центру.
    */
-  const spaceBelow = anchor ? window.innerHeight - (anchor.top + anchor.height + PAD + GAP) : 0
-  const spaceAbove = anchor ? anchor.top - PAD - GAP : 0
   const place = !anchor
     ? 'center'
-    : spaceBelow >= CARD_ROOM
+    : roomBelow(anchor) >= CARD_ROOM
       ? 'below'
-      : spaceAbove >= CARD_ROOM
+      : roomAbove(anchor) >= CARD_ROOM
         ? 'above'
         : 'center'
 
@@ -214,7 +230,9 @@ function TourOverlay() {
  */
 function TourHint() {
   const { hintVisible, dismissHint } = useTour()
-  const anchor = useAnchor('settings', hintVisible, false)
+  // Скролити тут доречно: останній крок навчання міг лишити екран
+  // прокрученим, а підказці треба, щоб шестерня була на видноті.
+  const anchor = useAnchor('settings', hintVisible)
 
   if (!hintVisible || !anchor) return null
 
@@ -228,7 +246,7 @@ function TourHint() {
         right: Math.max(10, window.innerWidth - (anchor.left + anchor.width)),
       }}
     >
-      Навчання завжди тут: Налаштування → Гід по застосунку
+      Навчання завжди тут — «Гід по застосунку»
     </div>
   )
 }
