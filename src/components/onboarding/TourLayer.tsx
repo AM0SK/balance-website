@@ -79,6 +79,28 @@ const roomBelow = (box: Anchor): number =>
 const roomAbove = (box: Anchor): number => box.top - PAD - GAP
 
 /**
+ * Скільки сусідніх цілей реально підсвічувати. Крок про Головну просить
+ * три картки, але на невисокому екрані вони з'їдають усе місце й
+ * поясненню нема куди стати — воно лягає просто поверх підсвітки.
+ * Тому беремо згори стільки, скільки лишає місце картці з текстом.
+ */
+function fitTargets(els: HTMLElement[]): HTMLElement[] {
+  if (els.length < 2) return els
+
+  const maxHeight = window.innerHeight - CARD_ROOM - TOP_MARGIN - GAP - PAD * 2
+  const sorted = [...els].sort(
+    (a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top,
+  )
+
+  const kept = [sorted[0]]
+  for (const el of sorted.slice(1)) {
+    if (boundingBox([...kept, el]).height > maxHeight) break
+    kept.push(el)
+  }
+  return kept
+}
+
+/**
  * Прямокутник цілі. Поки сцена перемикається, цілі ще немає в DOM —
  * чекаємо її по кадрах, а не одноразовою спробою.
  */
@@ -95,8 +117,9 @@ function useAnchor(target: string | string[] | undefined, active: boolean): Anch
     let attempts = 0
 
     const tick = () => {
-      const els = visibleTargets(target)
-      if (els.length) {
+      const found = visibleTargets(target)
+      if (found.length) {
+        const els = fitTargets(found)
         const box = boundingBox(els)
         const offscreen = box.top < 70 || box.top + box.height > window.innerHeight - 110
         // Висока ціль (кілька карток) може стояти на екрані повністю, але
@@ -119,8 +142,9 @@ function useAnchor(target: string | string[] | undefined, active: boolean): Anch
     tick()
 
     const remeasure = () => {
-      const els = visibleTargets(target)
-      if (els.length) setAnchor(boundingBox(els))
+      const found = visibleTargets(target)
+      // Разом із висотою екрана міняється і те, скільки цілей туди влазить.
+      if (found.length) setAnchor(boundingBox(fitTargets(found)))
     }
     window.addEventListener('resize', remeasure)
 
