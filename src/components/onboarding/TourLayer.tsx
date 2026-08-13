@@ -270,7 +270,7 @@ function TourHint() {
         right: Math.max(10, window.innerWidth - (anchor.left + anchor.width)),
       }}
     >
-      Навчання завжди тут — «Гід по застосунку»
+      Гід по застосунку тут
     </div>
   )
 }
