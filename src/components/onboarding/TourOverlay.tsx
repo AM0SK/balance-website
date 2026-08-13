@@ -5,7 +5,8 @@ import { useTour } from '@/lib/tour'
 /**
  * Малює навчання: затемнює екран, лишає «вікно» над потрібним елементом
  * і кладе поруч картку з поясненням. Стан веде lib/tour.tsx, сцени
- * (вкладка / екран Налаштувань) перемикає App.
+ * (вкладка / екран Налаштувань) перемикає App, а підказку після виходу
+ * показує TopBar — вона стоїть поруч із шестернею, а не поверх екрана.
  *
  * Ціль знаходимо за атрибутом data-tour у розмітці, а не за класами:
  * клас можна перейменувати під час верстки й мовчки зламати навчання.
@@ -157,16 +158,7 @@ function useAnchor(target: string | string[] | undefined, active: boolean): Anch
   return anchor
 }
 
-export function TourLayer() {
-  return (
-    <>
-      <TourOverlay />
-      <TourHint />
-    </>
-  )
-}
-
-function TourOverlay() {
+export function TourOverlay() {
   const { step, index, total, isLast, next, back, stop } = useTour()
   const anchor = useAnchor(step?.target, step !== null)
 
@@ -247,30 +239,3 @@ function TourOverlay() {
   )
 }
 
-/**
- * Підказка після навчання — і коли його пройшли, і коли закрили хрестиком.
- * Показує, куди повертатись, і зникає сама. Нічого не перекриває: це
- * бульбашка під шестернею, а не оверлей.
- */
-function TourHint() {
-  const { hintVisible, dismissHint } = useTour()
-  // Скролити тут доречно: останній крок навчання міг лишити екран
-  // прокрученим, а підказці треба, щоб шестерня була на видноті.
-  const anchor = useAnchor('settings', hintVisible)
-
-  if (!hintVisible || !anchor) return null
-
-  return (
-    <div
-      className="tour-hint"
-      role="status"
-      onClick={dismissHint}
-      style={{
-        top: anchor.top + anchor.height + 10,
-        right: Math.max(10, window.innerWidth - (anchor.left + anchor.width)),
-      }}
-    >
-      Гід по застосунку тут
-    </div>
-  )
-}

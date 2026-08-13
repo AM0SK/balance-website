@@ -40,6 +40,8 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  /* Опора для підказки навчання під шестернею. */
+  position: relative;
 }
 .avatar {
   width: 34px;
@@ -1350,11 +1352,18 @@
   padding: 0 20px;
 }
 
-/* Бульбашка-нагадування біля шестерні; живе 5 секунд і зникає сама. */
+/*
+ * Бульбашка-нагадування під шестернею; живе 5 секунд і зникає сама.
+ * Стоїть у потоці шапки (absolute відносно .topbar .right), а не поверх
+ * екрана: при скролі має їхати разом із кнопкою, до якої показує.
+ */
 .tour-hint {
-  position: fixed;
-  z-index: 25;
-  max-width: min(260px, calc(100% - 20px));
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  /* Шапка вузька: без nowrap бульбашка зламалась би у вузький стовпчик
+     замість того, щоб рости вліво. */
+  white-space: nowrap;
   padding: 9px 12px;
   border-radius: 12px;
   background: var(--tip-bg);
